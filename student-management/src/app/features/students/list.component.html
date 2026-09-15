@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Students</h3>
+    <div>
+      <input class="form-control d-inline-block me-2" style="width:220px" placeholder="Search" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" />
+      <button class="btn btn-outline-secondary me-2" (click)="exportCSV()">Export CSV</button>
+      <button class="btn btn-primary" (click)="newStudent()">Add Student</button>
+    </div>
+  </div>
+  <div *ngIf="loading">Loading...</div>
+  <table class="table table-striped" *ngIf="!loading">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Class</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of filtered">
+        <td>{{ s.name }}</td>
+        <td>{{ s.email }}</td>
+        <td>{{ s.classId }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary me-2" (click)="editStudent(s.id)">Edit</button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteStudent(s.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

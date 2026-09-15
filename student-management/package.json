@@ -1,0 +1,42 @@
+{
+  "name": "student-management",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "seed": "node scripts/seed-demo.js",
+    "ci-check": "npm install && npm run build",
+    "test:unit": "vitest run"
+  },
+  "private": true,
+  "packageManager": "npm@11.16.0",
+  "dependencies": {
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/fire": "^20.0.1",
+    "@angular/forms": "^20.3.0",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/platform-browser-dynamic": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "bootstrap": "^5.3.8",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^14.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.0",
+    "@angular/cli": "^20.3.0",
+    "@angular/compiler-cli": "^20.3.0",
+    "firebase-admin": "^14.4.0",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.8.3",
+    "vitest": "^4.0.8"
+  }
+}

@@ -1,0 +1,12 @@
+<div class="container mt-4">
+  <h3>Dashboard</h3>
+  <div *ngIf="loading">Loading...</div>
+  <div class="row" *ngIf="!loading">
+    <div class="col-md-4">
+      <div class="card p-3">
+        <h5>Total students</h5>
+        <div class="display-6">{{ totalStudents }}</div>
+      </div>
+    </div>
+  </div>
+</div>
