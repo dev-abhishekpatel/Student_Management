@@ -1,56 +1,116 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { StudentService } from '../../core/services/student.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { DataService } from '../../core/services/data.service';
+import { Student } from '../../core/models/models';
 
 @Component({
   selector: 'app-student-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './form.component.html',
-  styleUrls: ['./form.component.scss']
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './form.component.html'
 })
 export class StudentFormComponent implements OnInit {
-  id: string | null = null;
-  model: any = { name: '', email: '', classId: '', phone: '', address: '' };
-  photoFile?: File;
+  studentForm!: FormGroup;
+  isEditMode = false;
+  studentIdToEdit: string | null = null;
   loading = false;
-  error = '';
 
-  constructor(private route: ActivatedRoute, private router: Router, private svc: StudentService) {}
+  classes = ['Class 10-A', 'Class 10-B', 'Class 9-B', 'Class 11-A'];
 
-  async ngOnInit() {
-    this.id = this.route.snapshot.paramMap.get('id');
-    if (this.id) {
-      const s = await this.svc.getStudent(this.id);
-      if (s) this.model = s;
+  constructor(
+    private fb: FormBuilder,
+    private data: DataService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.initForm();
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.studentIdToEdit = params['id'];
+        this.loadStudentData(params['id']);
+      }
+    });
+  }
+
+  initForm() {
+    this.studentForm = this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      gender: ['Male', Validators.required],
+      dob: ['2010-01-01', Validators.required],
+      classId: ['Class 10-A', Validators.required],
+      sectionId: ['A', Validators.required],
+      rollNumber: ['', Validators.required],
+      address: ['', Validators.required],
+      fatherName: ['', Validators.required],
+      motherName: ['', Validators.required],
+      parentPhone: ['', Validators.required],
+      status: ['Active', Validators.required]
+    });
+  }
+
+  loadStudentData(id: string) {
+    const student = this.data.students().find(s => s.id === id);
+    if (student) {
+      this.studentForm.patchValue({
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        gender: student.gender,
+        dob: student.dob,
+        classId: student.classId,
+        sectionId: student.sectionId,
+        rollNumber: student.rollNumber,
+        address: student.address,
+        fatherName: student.parent.fatherName,
+        motherName: student.parent.motherName,
+        parentPhone: student.parent.phone,
+        status: student.status
+      });
     }
   }
 
-  onFileChange(ev: Event) {
-    const inp = ev.target as HTMLInputElement;
-    if (inp.files && inp.files.length) this.photoFile = inp.files[0];
-  }
+  onSubmit() {
+    if (this.studentForm.invalid) {
+      this.studentForm.markAllAsTouched();
+      return;
+    }
 
-  async submit() {
     this.loading = true;
-    this.error = '';
-    try {
-      if (this.photoFile) {
-        const url = await this.svc.uploadPhoto(this.photoFile, `students/${Date.now()}_${this.photoFile.name}`);
-        this.model.photoUrl = url;
-      }
-      if (this.id) {
-        await this.svc.updateStudent(this.id, this.model);
-      } else {
-        await this.svc.addStudent(this.model);
-      }
-      this.router.navigate(['/students']);
-    } catch (e: any) {
-      this.error = e?.message || 'Save failed';
-    } finally {
-      this.loading = false;
+    const val = this.studentForm.value;
+    const studentData: Student = {
+      studentId: this.isEditMode ? (this.data.students().find(s => s.id === this.studentIdToEdit)?.studentId || 'STD-2026') : `STD-2026-00${this.data.students().length + 1}`,
+      name: val.name,
+      email: val.email,
+      phone: val.phone,
+      gender: val.gender,
+      dob: val.dob,
+      classId: val.classId,
+      sectionId: val.sectionId,
+      rollNumber: val.rollNumber,
+      address: val.address,
+      parent: {
+        fatherName: val.fatherName,
+        motherName: val.motherName,
+        phone: val.parentPhone
+      },
+      status: val.status,
+      photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(val.name)}&background=random`
+    };
+
+    if (this.isEditMode && this.studentIdToEdit) {
+      this.data.updateStudent(this.studentIdToEdit, studentData);
+    } else {
+      this.data.addStudent(studentData);
     }
+
+    this.loading = false;
+    this.router.navigate(['/students']);
   }
 }

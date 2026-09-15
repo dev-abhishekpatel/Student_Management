@@ -1,0 +1,147 @@
+<div class="reports-container animate-fade-in">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Reports & Visual Analytics</h4>
+      <p class="text-muted small mb-0">Generate class analytics, attendance trends, grade distribution graphs, and printable transcripts.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <select class="form-select bg-white border fw-semibold shadow-xs" [ngModel]="selectedClass()" (ngModelChange)="selectedClass.set($event)">
+        @for (cls of classList(); track cls) {
+          <option [value]="cls">Report: {{ cls }}</option>
+        }
+      </select>
+      <button class="btn btn-primary rounded-3 text-nowrap shadow-sm" (click)="printReport()">
+        <i class="bi bi-printer me-1"></i> Export / Print Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Analytics Cards Row -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Attendance Percentage -->
+    <div class="col-md-4">
+      <div class="card border-0 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold text-dark mb-0"><i class="bi bi-calendar-check text-purple me-2"></i>Class Attendance</h6>
+          <span class="fs-4 fw-bold text-purple">{{ attendanceRate() }}%</span>
+        </div>
+        <p class="extra-small text-muted mb-3">Overall present rate for {{ selectedClass() }} students.</p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar bg-purple" [style.width.%]="attendanceRate()"></div>
+        </div>
+        <div class="d-flex justify-content-between extra-small text-muted">
+          <span>0%</span>
+          <span>Target: 95%</span>
+          <span>100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Fee Collection -->
+    <div class="col-md-4">
+      <div class="card border-0 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold text-dark mb-0"><i class="bi bi-cash-stack text-success me-2"></i>Fee Realization</h6>
+          <span class="fs-4 fw-bold text-success">{{ feeCollectionProgress().pct }}%</span>
+        </div>
+        <p class="extra-small text-muted mb-3">₹{{ feeCollectionProgress().totalPaid | number }} collected out of ₹{{ feeCollectionProgress().totalBilled | number }} billed.</p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar bg-success" [style.width.%]="feeCollectionProgress().pct"></div>
+        </div>
+        <div class="d-flex justify-content-between extra-small text-muted">
+          <span>Paid: ₹{{ feeCollectionProgress().totalPaid | number }}</span>
+          <span>Due: ₹{{ feeCollectionProgress().totalBilled - feeCollectionProgress().totalPaid | number }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Class Strength -->
+    <div class="col-md-4">
+      <div class="card border-0 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold text-dark mb-0"><i class="bi bi-people text-primary me-2"></i>Class Roster Size</h6>
+          <span class="fs-4 fw-bold text-primary">{{ classStudents().length }}</span>
+        </div>
+        <p class="extra-small text-muted mb-3">Active enrolled students in {{ selectedClass() }}.</p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar bg-primary" [style.width.%]="(classStudents().length / 40) * 100"></div>
+        </div>
+        <div class="d-flex justify-content-between extra-small text-muted">
+          <span>Students: {{ classStudents().length }}</span>
+          <span>Capacity: 40</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Academic Grade Distribution Breakdown -->
+  <div class="card border-0 p-4 shadow-sm mb-4">
+    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-fill text-info me-2"></i>Academic Grade Performance Distribution</h6>
+    <div class="row g-3 text-center">
+      <div class="col">
+        <div class="p-3 bg-light rounded-3">
+          <div class="extra-small text-muted font-monospace fw-bold mb-1">GRADE A+</div>
+          <div class="fs-4 fw-bold text-success">{{ gradeDistribution().aPlus }}%</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 bg-light rounded-3">
+          <div class="extra-small text-muted font-monospace fw-bold mb-1">GRADE A</div>
+          <div class="fs-4 fw-bold text-primary">{{ gradeDistribution().a }}%</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 bg-light rounded-3">
+          <div class="extra-small text-muted font-monospace fw-bold mb-1">GRADE B</div>
+          <div class="fs-4 fw-bold text-info">{{ gradeDistribution().b }}%</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 bg-light rounded-3">
+          <div class="extra-small text-muted font-monospace fw-bold mb-1">GRADE C/D</div>
+          <div class="fs-4 fw-bold text-warning">{{ gradeDistribution().c }}%</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 bg-light rounded-3">
+          <div class="extra-small text-muted font-monospace fw-bold mb-1">FAIL (F)</div>
+          <div class="fs-4 fw-bold text-danger">{{ gradeDistribution().f }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roster Summary Table for Printing -->
+  <div class="card border-0 shadow-sm p-3">
+    <h6 class="fw-bold mb-3">Enrolled Roster for {{ selectedClass() }}</h6>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle mb-0">
+        <thead class="table-light extra-small text-uppercase">
+          <tr>
+            <th>Roll No</th>
+            <th>Student Name</th>
+            <th>Student ID</th>
+            <th>Guardian Contact</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          @for (s of classStudents(); track s.id) {
+            <tr>
+              <td class="font-monospace fw-bold">{{ s.rollNumber }}</td>
+              <td class="fw-semibold text-dark">{{ s.name }}</td>
+              <td class="font-monospace extra-small">{{ s.studentId }}</td>
+              <td>{{ s.parent.fatherName }} ({{ s.parent.phone }})</td>
+              <td><span class="badge bg-success-subtle text-success">{{ s.status }}</span></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">No students found in {{ selectedClass() }}.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,14 @@
-/* minimal styles */
+.bg-gradient-brand {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.placeholder-white::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}

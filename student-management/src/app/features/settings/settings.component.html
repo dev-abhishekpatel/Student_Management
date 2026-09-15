@@ -1,0 +1,104 @@
+<div class="settings-container animate-fade-in" style="max-width: 900px; margin: 0 auto;">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-1">System & School Settings</h4>
+      <p class="text-muted small mb-0">Configure institution branding, active academic term, and role access permissions.</p>
+    </div>
+  </div>
+
+  @if (savedMessage) {
+    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4 rounded-3">
+      <i class="bi bi-check-circle-fill fs-5 me-2"></i> Settings saved successfully!
+    </div>
+  }
+
+  <form (ngSubmit)="save()">
+    <!-- Institution Details -->
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-2"></i>Institution Profile</h6>
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label small fw-semibold">School / Academy Name</label>
+          <input type="text" class="form-control" [(ngModel)]="settings.schoolName" name="schoolName">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">School Code</label>
+          <input type="text" class="form-control font-monospace" [(ngModel)]="settings.code" name="code">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Active Academic Year</label>
+          <select class="form-select" [(ngModel)]="settings.academicYear" name="academicYear">
+            <option value="2025-2026">2025 - 2026</option>
+            <option value="2026-2027">2026 - 2027</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Principal Name</label>
+          <input type="text" class="form-control" [(ngModel)]="settings.principalName" name="principalName">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Official Email</label>
+          <input type="email" class="form-control" [(ngModel)]="settings.email" name="email">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Phone Contact</label>
+          <input type="text" class="form-control" [(ngModel)]="settings.phone" name="phone">
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-semibold">Full Campus Address</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="settings.address" name="address"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role Permissions Summary -->
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-shield-check me-2"></i>Role Permission Enforcement Matrix</h6>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center mb-0 extra-small">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Module / Feature</th>
+              <th>Admin</th>
+              <th>Teacher</th>
+              <th>Student</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-start fw-semibold">Student Profiles</td>
+              <td><span class="badge bg-success">Full CRUD</span></td>
+              <td><span class="badge bg-info">View & Edit Assigned</span></td>
+              <td><span class="badge bg-secondary">View Own</span></td>
+            </tr>
+            <tr>
+              <td class="text-start fw-semibold">Daily Attendance</td>
+              <td><span class="badge bg-success">Manage All</span></td>
+              <td><span class="badge bg-success">Mark Class Sheet</span></td>
+              <td><span class="badge bg-secondary">View Own History</span></td>
+            </tr>
+            <tr>
+              <td class="text-start fw-semibold">Exams & Marks Entry</td>
+              <td><span class="badge bg-success">Create Exam & Publish</span></td>
+              <td><span class="badge bg-success">Enter Marks</span></td>
+              <td><span class="badge bg-secondary">View Report Card</span></td>
+            </tr>
+            <tr>
+              <td class="text-start fw-semibold">Fee Ledgers</td>
+              <td><span class="badge bg-success">Issue & Record Payment</span></td>
+              <td><span class="badge bg-light text-dark">No Access</span></td>
+              <td><span class="badge bg-secondary">View Own Status</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="text-end mb-5">
+      <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold shadow-sm">
+        <i class="bi bi-save me-1"></i> Save Preferences
+      </button>
+    </div>
+  </form>
+</div>

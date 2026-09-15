@@ -1,0 +1,175 @@
+<div class="attendance-container animate-fade-in">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Attendance Management</h4>
+      <p class="text-muted small mb-0">Record daily attendance, generate monthly summaries, and monitor absenteeism.</p>
+    </div>
+    <!-- Tabs Toggle -->
+    <div class="btn-group bg-white p-1 border rounded-pill shadow-xs">
+      <button class="btn btn-sm rounded-pill px-3" [class.btn-primary]="activeTab() === 'mark'" [class.btn-light]="activeTab() !== 'mark'" (click)="activeTab.set('mark')">
+        <i class="bi bi-calendar-check me-1"></i> Daily Marking
+      </button>
+      <button class="btn btn-sm rounded-pill px-3" [class.btn-primary]="activeTab() === 'history'" [class.btn-light]="activeTab() !== 'history'" (click)="activeTab.set('history')">
+        <i class="bi bi-clock-history me-1"></i> History & Logs
+      </button>
+    </div>
+  </div>
+
+  <!-- Class & Date Selector Card -->
+  <div class="card border-0 p-3 mb-4 shadow-sm">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label class="form-label extra-small text-muted fw-bold text-uppercase mb-1">Select Class</label>
+        <select class="form-select bg-light" [ngModel]="selectedClass()" (ngModelChange)="selectedClass.set($event); onClassOrDateChange()">
+          @for (cls of classList(); track cls) {
+            <option [value]="cls">{{ cls }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label extra-small text-muted fw-bold text-uppercase mb-1">Attendance Date</label>
+        <input type="date" class="form-control bg-light" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event); onClassOrDateChange()">
+      </div>
+      <div class="col-md-4 text-md-end pt-md-3">
+        @if (activeTab() === 'mark') {
+          <button class="btn btn-outline-success btn-sm me-2 rounded-3" (click)="markAll('Present')">
+            <i class="bi bi-check-all me-1"></i> All Present
+          </button>
+          <button class="btn btn-outline-danger btn-sm rounded-3" (click)="markAll('Absent')">
+            All Absent
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (activeTab() === 'mark') {
+    <!-- Attendance Summary Bar -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 p-3 bg-present text-center">
+          <div class="extra-small text-uppercase font-monospace fw-bold mb-1">Present Rate</div>
+          <div class="fs-4 fw-bold">{{ stats.rate }}%</div>
+          <div class="extra-small">{{ stats.present }} of {{ stats.total }} Students</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 p-3 bg-absent text-center">
+          <div class="extra-small text-uppercase font-monospace fw-bold mb-1">Absentees</div>
+          <div class="fs-4 fw-bold">{{ stats.absent }}</div>
+          <div class="extra-small">Not present today</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 p-3 bg-late text-center">
+          <div class="extra-small text-uppercase font-monospace fw-bold mb-1">Late Arrivals</div>
+          <div class="fs-4 fw-bold">{{ stats.late }}</div>
+          <div class="extra-small">Delayed entry</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 p-3 bg-light text-center">
+          <div class="extra-small text-uppercase font-monospace fw-bold mb-1 text-muted">Total Roster</div>
+          <div class="fs-4 fw-bold text-dark">{{ stats.total }}</div>
+          <div class="extra-small text-muted">{{ selectedClass() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Marking Matrix Table -->
+    <div class="card border-0 shadow-sm overflow-hidden mb-4">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase extra-small text-muted border-bottom">
+            <tr>
+              <th class="ps-4" style="width: 100px;">Roll No</th>
+              <th>Student Name</th>
+              <th class="text-center" style="width: 320px;">Status Selection</th>
+              <th>Remarks / Note</th>
+            </tr>
+          </thead>
+          <tbody class="small">
+            @for (row of attendanceRows(); track row.studentId; let i = $index) {
+              <tr>
+                <td class="ps-4 font-monospace fw-bold text-dark">{{ row.rollNumber }}</td>
+                <td class="fw-semibold text-dark">{{ row.studentName }}</td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm w-100" role="group">
+                    <button type="button" class="btn btn-outline-success" [class.active]="row.status === 'Present'" (click)="setStatus(i, 'Present')">
+                      Present
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" [class.active]="row.status === 'Absent'" (click)="setStatus(i, 'Absent')">
+                      Absent
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" [class.active]="row.status === 'Late'" (click)="setStatus(i, 'Late')">
+                      Late
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" [class.active]="row.status === 'Excused'" (click)="setStatus(i, 'Excused')">
+                      Excused
+                    </button>
+                  </div>
+                </td>
+                <td>
+                  <input type="text" class="form-control form-control-sm bg-light" placeholder="Optional remark..." [(ngModel)]="row.remarks">
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-5 text-muted">No students registered in this class.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="p-3 bg-light border-top text-end">
+        <button class="btn btn-primary rounded-3 px-4 fw-bold shadow-sm" (click)="saveAttendance()">
+          <i class="bi bi-save me-1"></i> Save Attendance Sheet
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Attendance History Log Tab -->
+    <div class="card border-0 shadow-sm p-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-journal-text me-2 text-primary"></i>Saved Attendance Log for {{ selectedClass() }}</h6>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase extra-small text-muted">
+            <tr>
+              <th>Date</th>
+              <th>Student Name</th>
+              <th>Roll No</th>
+              <th>Status</th>
+              <th>Marked By</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody class="small">
+            @for (rec of historyRecords(); track rec.id) {
+              <tr>
+                <td class="font-monospace fw-medium">{{ rec.date }}</td>
+                <td class="fw-semibold text-dark">{{ rec.studentName }}</td>
+                <td>{{ rec.rollNumber }}</td>
+                <td>
+                  <span class="badge rounded-pill"
+                        [class.bg-present]="rec.status === 'Present'"
+                        [class.bg-absent]="rec.status === 'Absent'"
+                        [class.bg-late]="rec.status === 'Late'"
+                        [class.bg-excused]="rec.status === 'Excused'">
+                    {{ rec.status }}
+                  </span>
+                </td>
+                <td class="text-muted extra-small">{{ rec.markedBy }}</td>
+                <td class="text-muted extra-small">{{ rec.remarks || '-' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No historical records found for this class.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

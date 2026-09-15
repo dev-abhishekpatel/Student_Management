@@ -1,11 +1,218 @@
-<div class="container mt-4">
-  <h3>Dashboard</h3>
-  <div *ngIf="loading">Loading...</div>
-  <div class="row" *ngIf="!loading">
-    <div class="col-md-4">
-      <div class="card p-3">
-        <h5>Total students</h5>
-        <div class="display-6">{{ totalStudents }}</div>
+<div class="dashboard-container animate-fade-in">
+  <!-- Welcome Banner -->
+  <div class="card border-0 bg-primary text-white p-4 mb-4 rounded-4 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);">
+    <div class="row align-items-center">
+      <div class="col-md-8 mb-3 mb-md-0">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 text-uppercase fw-semibold extra-small">
+            {{ auth.currentRole() }} Workspace
+          </span>
+          <span class="text-white-50 extra-small">Academic Term 2025-2026</span>
+        </div>
+        <h3 class="fw-bold mb-1">Welcome back, {{ auth.currentUser()?.name }}! 👋</h3>
+        <p class="text-white-50 mb-0 small">Here is an overview of school activities, metrics, and announcements for today.</p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        @if (auth.currentRole() === 'admin') {
+          <a routerLink="/students/new" class="btn btn-light text-primary fw-bold rounded-3 px-3 py-2 me-2">
+            <i class="bi bi-person-plus-fill me-1"></i> Add Student
+          </a>
+        }
+        <a routerLink="/notices" class="btn btn-outline-light rounded-3 px-3 py-2">
+          <i class="bi bi-megaphone me-1"></i> View Notices
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row -->
+  <div class="row g-3 mb-4">
+    <!-- Stat Card 1 -->
+    <div class="col-6 col-lg-3">
+      <div class="card card-hover p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-muted small fw-medium">Total Students</span>
+          <div class="icon-circle bg-primary-subtle text-primary rounded-3 p-2 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+            <i class="bi bi-people-fill fs-5"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold text-dark mb-1">{{ totalStudents() }}</h3>
+        <div class="extra-small text-success fw-medium">
+          <i class="bi bi-arrow-up-right me-1"></i> Active enrolled
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card 2 -->
+    <div class="col-6 col-lg-3">
+      <div class="card card-hover p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-muted small fw-medium">Total Teachers</span>
+          <div class="icon-circle bg-warning-subtle text-warning rounded-3 p-2 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+            <i class="bi bi-person-workspace fs-5"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold text-dark mb-1">{{ totalTeachers() }}</h3>
+        <div class="extra-small text-muted">Across {{ totalClasses() }} classes</div>
+      </div>
+    </div>
+
+    <!-- Stat Card 3 -->
+    <div class="col-6 col-lg-3">
+      <div class="card card-hover p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-muted small fw-medium">Fees Collected</span>
+          <div class="icon-circle bg-success-subtle text-success rounded-3 p-2 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+            <i class="bi bi-currency-rupee fs-5"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold text-dark mb-1">₹{{ totalFeeCollected() | number }}</h3>
+        <div class="extra-small text-danger fw-medium">₹{{ totalFeeDue() | number }} Pending</div>
+      </div>
+    </div>
+
+    <!-- Stat Card 4 -->
+    <div class="col-6 col-lg-3">
+      <div class="card card-hover p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-muted small fw-medium">Today's Attendance</span>
+          <div class="icon-circle bg-purple-subtle text-purple rounded-3 p-2 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+            <i class="bi bi-calendar-check-fill fs-5"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold text-dark mb-1">{{ todayAttendanceCount().present }} / {{ todayAttendanceCount().total }}</h3>
+        <div class="extra-small text-success fw-medium">
+          {{ ((todayAttendanceCount().present / (todayAttendanceCount().total || 1)) * 100) | number:'1.0-0' }}% Attendance Rate
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="row g-3">
+    <!-- Left Column: Recent Students & Quick Actions -->
+    <div class="col-lg-8">
+      <!-- Quick Action Shortcuts -->
+      <div class="card border-0 mb-4 p-3">
+        <h6 class="fw-bold mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick Actions</h6>
+        <div class="row g-2">
+          @if (auth.currentRole() === 'admin' || auth.currentRole() === 'teacher') {
+            <div class="col-6 col-md-3">
+              <a routerLink="/attendance" class="btn btn-light border w-100 py-3 text-start rounded-3 h-100 d-flex flex-column justify-content-between">
+                <i class="bi bi-calendar-plus text-primary fs-4 mb-2"></i>
+                <div>
+                  <div class="fw-semibold small">Mark Attendance</div>
+                  <div class="extra-small text-muted">Daily class sheet</div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6 col-md-3">
+              <a routerLink="/exams" class="btn btn-light border w-100 py-3 text-start rounded-3 h-100 d-flex flex-column justify-content-between">
+                <i class="bi bi-pen-fill text-danger fs-4 mb-2"></i>
+                <div>
+                  <div class="fw-semibold small">Enter Marks</div>
+                  <div class="extra-small text-muted">Exams & results</div>
+                </div>
+              </a>
+            </div>
+          }
+          <div class="col-6 col-md-3">
+            <a routerLink="/timetable" class="btn btn-light border w-100 py-3 text-start rounded-3 h-100 d-flex flex-column justify-content-between">
+              <i class="bi bi-clock-fill text-info fs-4 mb-2"></i>
+              <div>
+                <div class="fw-semibold small">Timetable</div>
+                <div class="extra-small text-muted">Class schedule</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a routerLink="/fees" class="btn btn-light border w-100 py-3 text-start rounded-3 h-100 d-flex flex-column justify-content-between">
+              <i class="bi bi-receipt text-success fs-4 mb-2"></i>
+              <div>
+                <div class="fw-semibold small">Fee Records</div>
+                <div class="extra-small text-muted">Track payments</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Students List -->
+      <div class="card border-0 p-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-people text-primary me-2"></i>Recently Added Students</h6>
+          <a routerLink="/students" class="small text-primary text-decoration-none fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light extra-small text-uppercase">
+              <tr>
+                <th>Student</th>
+                <th>Student ID</th>
+                <th>Class</th>
+                <th>Roll No</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              @for (student of recentStudents(); track student.id) {
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img [src]="student.photoUrl || 'https://ui-avatars.com/api/?name=' + student.name" class="rounded-circle" width="32" height="32" alt="Avatar">
+                      <div>
+                        <div class="fw-semibold text-dark">{{ student.name }}</div>
+                        <div class="extra-small text-muted">{{ student.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="font-monospace extra-small">{{ student.studentId }}</td>
+                  <td><span class="badge bg-light text-dark border">{{ student.classId }}</span></td>
+                  <td class="fw-medium">{{ student.rollNumber }}</td>
+                  <td>
+                    <span class="badge rounded-pill bg-success-subtle text-success">{{ student.status }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: School Notices & System Info -->
+    <div class="col-lg-4">
+      <!-- Notices Card -->
+      <div class="card border-0 p-3 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-pin-angle-fill text-danger me-2"></i>School Announcements</h6>
+          <a routerLink="/notices" class="small text-primary text-decoration-none">All Notices</a>
+        </div>
+        <div class="d-flex flex-column gap-3">
+          @for (notice of recentNotices(); track notice.id) {
+            <div class="p-3 bg-light rounded-3 border-start border-3"
+                 [class.border-danger]="notice.category === 'Urgent' || notice.category === 'Exam'"
+                 [class.border-primary]="notice.category !== 'Urgent' && notice.category !== 'Exam'">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="badge bg-secondary-subtle text-secondary extra-small">{{ notice.category }}</span>
+                <span class="extra-small text-muted">{{ notice.createdAt }}</span>
+              </div>
+              <div class="fw-semibold text-dark small mb-1">{{ notice.title }}</div>
+              <p class="extra-small text-muted mb-0 text-truncate-2">{{ notice.message }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- School Info Card -->
+      <div class="card border-0 p-3 bg-white">
+        <h6 class="fw-bold mb-3"><i class="bi bi-info-circle-fill text-info me-2"></i>School Info</h6>
+        <div class="small">
+          <div class="mb-2"><strong>Institution:</strong> {{ data.schoolSettings().schoolName }}</div>
+          <div class="mb-2"><strong>Principal:</strong> {{ data.schoolSettings().principalName }}</div>
+          <div class="mb-2"><strong>Contact:</strong> {{ data.schoolSettings().email }}</div>
+          <div><strong>Address:</strong> {{ data.schoolSettings().address }}</div>
+        </div>
       </div>
     </div>
   </div>

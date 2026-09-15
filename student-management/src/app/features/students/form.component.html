@@ -1,41 +1,107 @@
-<div class="container mt-4" style="max-width:720px">
-  <div class="card p-4">
-    <h4 class="mb-3">{{ id ? 'Edit' : 'Add' }} Student</h4>
-    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-    <form (ngSubmit)="submit()">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Name</label>
-          <input class="form-control" [(ngModel)]="model.name" name="name" required />
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" [(ngModel)]="model.email" name="email" required />
-        </div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Class / Section</label>
-        <input class="form-control" [(ngModel)]="model.classId" name="classId" />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Phone</label>
-        <input class="form-control" [(ngModel)]="model.phone" name="phone" />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Address</label>
-        <textarea class="form-control" [(ngModel)]="model.address" name="address"></textarea>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Photo</label>
-        <input type="file" class="form-control" (change)="onFileChange($event)" />
-        <div *ngIf="model.photoUrl" class="mt-2">
-          <img [src]="model.photoUrl" alt="photo" style="max-width:120px;" />
-        </div>
-      </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary" [disabled]="loading">Save</button>
-        <a class="btn btn-secondary" [routerLink]="['/students']">Cancel</a>
-      </div>
-    </form>
+<div class="student-form-container animate-fade-in" style="max-width: 900px; margin: 0 auto;">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-1">{{ isEditMode ? 'Edit Student Profile' : 'Register New Student' }}</h4>
+      <p class="text-muted small mb-0">Fill out all student academic, personal, and guardian details.</p>
+    </div>
+    <a routerLink="/students" class="btn btn-outline-secondary rounded-3">
+      <i class="bi bi-arrow-left me-1"></i> Back to Student List
+    </a>
   </div>
+
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+    <!-- Academic Info Section -->
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-book me-2"></i>Academic Information</h6>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Class Assignment</label>
+          <select class="form-select" formControlName="classId">
+            @for (cls of classes; track cls) {
+              <option [value]="cls">{{ cls }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Section</label>
+          <input type="text" class="form-control" formControlName="sectionId" placeholder="e.g. A">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Roll Number</label>
+          <input type="text" class="form-control" formControlName="rollNumber" placeholder="e.g. 101">
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Info Section -->
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person me-2"></i>Personal Details</h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Full Name *</label>
+          <input type="text" class="form-control" formControlName="name" placeholder="Student full name">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Email Address *</label>
+          <input type="email" class="form-control" formControlName="email" placeholder="student@school.com">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Phone Number *</label>
+          <input type="text" class="form-control" formControlName="phone" placeholder="+91 9876543210">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Gender</label>
+          <select class="form-select" formControlName="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Date of Birth</label>
+          <input type="date" class="form-control" formControlName="dob">
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-semibold">Residential Address</label>
+          <textarea class="form-control" rows="2" formControlName="address" placeholder="Full residential address..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parent Information Section -->
+    <div class="card border-0 p-4 mb-4 shadow-sm">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-people me-2"></i>Parent & Guardian Info</h6>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Father's Name *</label>
+          <input type="text" class="form-control" formControlName="fatherName">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Mother's Name *</label>
+          <input type="text" class="form-control" formControlName="motherName">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Guardian Phone *</label>
+          <input type="text" class="form-control" formControlName="parentPhone" placeholder="+91 9876543211">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Enrollment Status</label>
+          <select class="form-select" formControlName="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Graduated">Graduated</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="d-flex justify-content-end gap-3 mb-5">
+      <a routerLink="/students" class="btn btn-light rounded-3 px-4">Cancel</a>
+      <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold shadow-sm" [disabled]="loading">
+        <i class="bi bi-check-circle me-1"></i> {{ isEditMode ? 'Save Changes' : 'Create Student' }}
+      </button>
+    </div>
+  </form>
 </div>

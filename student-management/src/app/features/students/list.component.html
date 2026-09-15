@@ -1,27 +1,186 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Students</h3>
+<div class="students-list-container animate-fade-in">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
-      <input class="form-control d-inline-block me-2" style="width:220px" placeholder="Search" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" />
-      <button class="btn btn-outline-secondary me-2" (click)="exportCSV()">Export CSV</button>
-      <button class="btn btn-primary" (click)="newStudent()">Add Student</button>
+      <h4 class="fw-bold mb-1">Student Management</h4>
+      <p class="text-muted small mb-0">View, search, edit, and manage all registered student profiles.</p>
+    </div>
+    @if (auth.currentRole() === 'admin' || auth.currentRole() === 'teacher') {
+      <a routerLink="/students/new" class="btn btn-primary rounded-3 px-3 py-2 fw-semibold shadow-sm">
+        <i class="bi bi-person-plus-fill me-1"></i> Add New Student
+      </a>
+    }
+  </div>
+
+  <!-- Filter & Search Bar Card -->
+  <div class="card border-0 p-3 mb-4 shadow-sm">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Search by name, student ID, roll no..." 
+                 [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select bg-light" [ngModel]="selectedClass()" (ngModelChange)="selectedClass.set($event)">
+          <option value="">All Classes</option>
+          @for (cls of classList(); track cls) {
+            <option [value]="cls">{{ cls }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select bg-light" [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Graduated">Graduated</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-1 text-end">
+        <span class="badge bg-light text-dark border px-2 py-2 w-100">
+          {{ filteredStudents().length }} Records
+        </span>
+      </div>
     </div>
   </div>
-  <div *ngIf="loading">Loading...</div>
-  <table class="table table-striped" *ngIf="!loading">
-    <thead>
-      <tr><th>Name</th><th>Email</th><th>Class</th><th></th></tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let s of filtered">
-        <td>{{ s.name }}</td>
-        <td>{{ s.email }}</td>
-        <td>{{ s.classId }}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-secondary me-2" (click)="editStudent(s.id)">Edit</button>
-          <button class="btn btn-sm btn-outline-danger" (click)="deleteStudent(s.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+
+  <!-- Students Data Table Card -->
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-uppercase extra-small text-muted border-bottom">
+          <tr>
+            <th class="ps-4">Student</th>
+            <th>Student ID</th>
+            <th>Class / Sec</th>
+            <th>Roll No</th>
+            <th>Parent Contact</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          @for (student of filteredStudents(); track student.id) {
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center gap-3">
+                  <img [src]="student.photoUrl || 'https://ui-avatars.com/api/?name=' + student.name" 
+                       class="rounded-circle border" width="40" height="40" alt="Avatar">
+                  <div>
+                    <div class="fw-semibold text-dark">{{ student.name }}</div>
+                    <div class="extra-small text-muted">{{ student.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="font-monospace fw-medium extra-small text-primary">{{ student.studentId }}</td>
+              <td>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5">
+                  {{ student.classId }}
+                </span>
+              </td>
+              <td class="fw-bold text-dark">{{ student.rollNumber }}</td>
+              <td>
+                <div class="extra-small fw-medium">{{ student.parent.fatherName }}</div>
+                <div class="extra-small text-muted"><i class="bi bi-telephone me-1"></i>{{ student.parent.phone }}</div>
+              </td>
+              <td>
+                <span class="badge rounded-pill"
+                      [class.bg-success-subtle]="student.status === 'Active'"
+                      [class.text-success]="student.status === 'Active'"
+                      [class.bg-danger-subtle]="student.status !== 'Active'"
+                      [class.text-danger]="student.status !== 'Active'">
+                  {{ student.status }}
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary rounded-start" (click)="viewDetail(student)" title="View Profile" data-bs-toggle="modal" data-bs-target="#studentModal">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  @if (auth.currentRole() === 'admin') {
+                    <a [routerLink]="['/students', student.id, 'edit']" class="btn btn-outline-secondary" title="Edit Student">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <button class="btn btn-outline-danger rounded-end" (click)="deleteStudent(student.id!)" title="Delete Student">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-search fs-2 mb-2 d-block text-secondary opacity-50"></i>
+                No matching student records found.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Student Profile Detail Modal -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    @if (selectedStudent(); as s) {
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header bg-primary text-white p-4 bg-gradient">
+          <div class="d-flex align-items-center gap-3">
+            <img [src]="s.photoUrl || 'https://ui-avatars.com/api/?name=' + s.name" class="rounded-circle border border-2 border-white" width="60" height="60" alt="Avatar">
+            <div>
+              <h5 class="fw-bold mb-0 text-white">{{ s.name }}</h5>
+              <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1 extra-small">{{ s.studentId }}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3">
+                <label class="text-muted extra-small text-uppercase fw-semibold">Class & Section</label>
+                <div class="fw-bold text-dark fs-6">{{ s.classId }} (Sec {{ s.sectionId }})</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3">
+                <label class="text-muted extra-small text-uppercase fw-semibold">Roll Number</label>
+                <div class="fw-bold text-dark fs-6">{{ s.rollNumber }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3">
+                <label class="text-muted extra-small text-uppercase fw-semibold">Gender & DOB</label>
+                <div class="fw-bold text-dark fs-6">{{ s.gender }}, {{ s.dob }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-person-heart me-1"></i> Parent Information</h6>
+                <div class="small"><strong>Father:</strong> {{ s.parent.fatherName }}</div>
+                <div class="small"><strong>Mother:</strong> {{ s.parent.motherName }}</div>
+                <div class="small"><strong>Phone:</strong> {{ s.parent.phone }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 border rounded-3">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-geo-alt-fill me-1"></i> Contact & Address</h6>
+                <div class="small"><strong>Email:</strong> {{ s.email }}</div>
+                <div class="small"><strong>Phone:</strong> {{ s.phone }}</div>
+                <div class="small"><strong>Address:</strong> {{ s.address }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 p-3">
+          <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    }
+  </div>
 </div>

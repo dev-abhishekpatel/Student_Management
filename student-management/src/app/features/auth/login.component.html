@@ -1,17 +1,61 @@
-<div class="container mt-5" style="max-width:420px">
-  <div class="card p-4">
-    <h4 class="mb-3">Sign in</h4>
-    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-    <form (ngSubmit)="submit()">
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input class="form-control" [(ngModel)]="email" name="email" required />
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 bg-gradient-brand p-3">
+  <div class="login-card card border-0 shadow-lg p-4 p-md-5 rounded-4 glass-panel text-white" style="max-width: 480px; width: 100%;">
+    <div class="text-center mb-4">
+      <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-3 p-3" style="width: 64px; height: 64px;">
+        <i class="bi bi-mortarboard-fill fs-2"></i>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" class="form-control" [(ngModel)]="password" name="password" required />
+      <h2 class="fw-bold mb-1">St. Xavier Academy</h2>
+      <p class="text-white-50 small mb-0">Student Management System Portal</p>
+    </div>
+
+    @if (error) {
+      <div class="alert alert-danger border-0 bg-danger bg-opacity-25 text-white d-flex align-items-center small mb-4 rounded-3">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
       </div>
-      <button class="btn btn-primary w-100" [disabled]="loading">Sign in</button>
+    }
+
+    <form (ngSubmit)="submit()" class="mb-4">
+      <div class="mb-3">
+        <label class="form-label text-white-50 small fw-medium">Email Address</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white bg-opacity-10 border-0 text-white"><i class="bi bi-envelope"></i></span>
+          <input type="email" class="form-control bg-white bg-opacity-10 border-0 text-white placeholder-white" [(ngModel)]="email" name="email" placeholder="name@school.com" required />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <label class="form-label text-white-50 small fw-medium mb-0">Password</label>
+          <a href="javascript:void(0)" class="text-white-50 small text-decoration-none">Forgot?</a>
+        </div>
+        <div class="input-group">
+          <span class="input-group-text bg-white bg-opacity-10 border-0 text-white"><i class="bi bi-lock"></i></span>
+          <input type="password" class="form-control bg-white bg-opacity-10 border-0 text-white placeholder-white" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-light w-100 py-2.5 fw-bold text-primary rounded-3 shadow-sm" [disabled]="loading">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span> Signing in...
+        } @else {
+          Sign In to Portal <i class="bi bi-arrow-right ms-1"></i>
+        }
+      </button>
     </form>
+
+    <div class="border-top border-white border-opacity-10 pt-4">
+      <div class="text-center text-white-50 small mb-3 fw-medium">⚡ Quick Demo Access by Role:</div>
+      <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('admin')">
+          <i class="bi bi-shield-lock-fill text-warning me-1"></i> Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('teacher')">
+          <i class="bi bi-person-badge-fill text-info me-1"></i> Teacher
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('student')">
+          <i class="bi bi-backpack-fill text-success me-1"></i> Student
+        </button>
+      </div>
+    </div>
   </div>
 </div>

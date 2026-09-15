@@ -1,0 +1,128 @@
+<div class="notices-container animate-fade-in">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Notices & Announcements</h4>
+      <p class="text-muted small mb-0">Broadcast school-wide announcements, exam schedules, and holiday notices.</p>
+    </div>
+    @if (auth.currentRole() === 'admin' || auth.currentRole() === 'teacher') {
+      <button class="btn btn-primary rounded-3 px-3 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#createNoticeModal">
+        <i class="bi bi-megaphone-fill me-1"></i> Post Announcement
+      </button>
+    }
+  </div>
+
+  <!-- Category Filter Bar -->
+  <div class="card border-0 p-3 mb-4 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-secondary" [class.active]="selectedCategory() === ''" (click)="selectedCategory.set('')">All Categories</button>
+        <button class="btn btn-outline-primary" [class.active]="selectedCategory() === 'General'" (click)="selectedCategory.set('General')">General</button>
+        <button class="btn btn-outline-info" [class.active]="selectedCategory() === 'Academic'" (click)="selectedCategory.set('Academic')">Academic</button>
+        <button class="btn btn-outline-danger" [class.active]="selectedCategory() === 'Exam'" (click)="selectedCategory.set('Exam')">Exam</button>
+        <button class="btn btn-outline-warning" [class.active]="selectedCategory() === 'Urgent'" (click)="selectedCategory.set('Urgent')">Urgent</button>
+      </div>
+      <span class="extra-small text-muted">{{ filteredNotices().length }} Announcements</span>
+    </div>
+  </div>
+
+  <!-- Notices Cards Stack -->
+  <div class="row g-3">
+    @for (notice of filteredNotices(); track notice.id) {
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-hover h-100 border-0 shadow-sm p-4 position-relative"
+             [class.border-start]="notice.isPinned"
+             [class.border-4]="notice.isPinned"
+             [class.border-danger]="notice.isPinned">
+          @if (notice.isPinned) {
+            <span class="position-absolute top-0 end-0 m-3 badge bg-danger-subtle text-danger rounded-pill px-2.5">
+              <i class="bi bi-pin-angle-fill me-1"></i> Pinned
+            </span>
+          }
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge rounded-pill extra-small"
+                  [class.bg-danger-subtle]="notice.category === 'Urgent' || notice.category === 'Exam'"
+                  [class.text-danger]="notice.category === 'Urgent' || notice.category === 'Exam'"
+                  [class.bg-primary-subtle]="notice.category !== 'Urgent' && notice.category !== 'Exam'"
+                  [class.text-primary]="notice.category !== 'Urgent' && notice.category !== 'Exam'">
+              {{ notice.category }}
+            </span>
+            <span class="extra-small text-muted">Audience: {{ notice.targetAudience }}</span>
+          </div>
+
+          <h5 class="fw-bold text-dark mb-2">{{ notice.title }}</h5>
+          <p class="small text-muted mb-3 flex-grow-1">{{ notice.message }}</p>
+
+          <div class="pt-3 border-top mt-auto d-flex justify-content-between align-items-center extra-small text-muted">
+            <span>By <strong>{{ notice.authorName }}</strong> on {{ notice.createdAt }}</span>
+            @if (auth.currentRole() === 'admin') {
+              <button class="btn btn-link text-danger p-0 extra-small" (click)="deleteNotice(notice.id!)" title="Delete Notice">
+                <i class="bi bi-trash"></i>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-megaphone fs-2 mb-2 d-block text-secondary opacity-50"></i>
+        No announcements posted under this category.
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Post Notice Modal -->
+<div class="modal fade" id="createNoticeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-primary text-white p-3">
+        <h5 class="modal-title fw-bold">Post New Announcement</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Announcement Title *</label>
+          <input type="text" class="form-control" [(ngModel)]="title" placeholder="e.g. Science Exhibition Registration">
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label small fw-semibold">Category</label>
+            <select class="form-select" [(ngModel)]="category">
+              <option value="General">General</option>
+              <option value="Academic">Academic</option>
+              <option value="Exam">Exam</option>
+              <option value="Event">Event</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label small fw-semibold">Target Audience</label>
+            <select class="form-select" [(ngModel)]="targetAudience">
+              <option value="All">All School</option>
+              <option value="Teachers">Teachers Only</option>
+              <option value="Students">Students Only</option>
+              <option value="Parents">Parents Only</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Notice Message *</label>
+          <textarea class="form-control" rows="4" [(ngModel)]="message" placeholder="Detailed announcement details..."></textarea>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" [(ngModel)]="isPinned" id="pinNoticeCheck">
+          <label class="form-check-label small fw-semibold" for="pinNoticeCheck">
+            Pin announcement to top of dashboard
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer bg-light border-0 p-3">
+        <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary rounded-3 px-4 fw-semibold" (click)="addNotice()" data-bs-dismiss="modal">
+          Publish Notice
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

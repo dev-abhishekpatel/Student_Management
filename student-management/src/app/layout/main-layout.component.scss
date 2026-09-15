@@ -1,0 +1,57 @@
+.app-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background-color: #1e1e2d !important;
+  transition: all 0.25s ease-in-out;
+
+  &.collapsed {
+    width: 68px;
+    min-width: 68px;
+
+    .nav-text, .sidebar-footer {
+      display: none;
+    }
+
+    .nav-link {
+      justify-content: center;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+}
+
+.nav-link {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.925rem;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+  }
+
+  &.active {
+    background-color: #3699ff !important;
+    color: #ffffff !important;
+
+    i {
+      color: #ffffff !important;
+    }
+  }
+}
+
+.text-purple { color: #8b5cf6 !important; }
+.text-teal { color: #14b8a6 !important; }
+.text-emerald { color: #10b981 !important; }
+.text-orange { color: #f97316 !important; }
+.text-cyan { color: #06b6d4 !important; }
+.text-indigo { color: #6366f1 !important; }
+
+.btn-xs {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
