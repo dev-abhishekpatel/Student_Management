@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SpinnerService } from '../../core/services/spinner.service';
 import { Student } from '../../core/models/models';
 
 @Component({
@@ -23,7 +25,9 @@ export class StudentFormComponent implements OnInit {
     private fb: FormBuilder,
     private data: DataService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toast: ToastService,
+    private spinner: SpinnerService
   ) {}
 
   ngOnInit() {
@@ -79,38 +83,46 @@ export class StudentFormComponent implements OnInit {
   onSubmit() {
     if (this.studentForm.invalid) {
       this.studentForm.markAllAsTouched();
+      this.toast.warning('Please fill in all required fields correctly.', 'Validation Error');
       return;
     }
 
     this.loading = true;
-    const val = this.studentForm.value;
-    const studentData: Student = {
-      studentId: this.isEditMode ? (this.data.students().find(s => s.id === this.studentIdToEdit)?.studentId || 'STD-2026') : `STD-2026-00${this.data.students().length + 1}`,
-      name: val.name,
-      email: val.email,
-      phone: val.phone,
-      gender: val.gender,
-      dob: val.dob,
-      classId: val.classId,
-      sectionId: val.sectionId,
-      rollNumber: val.rollNumber,
-      address: val.address,
-      parent: {
-        fatherName: val.fatherName,
-        motherName: val.motherName,
-        phone: val.parentPhone
-      },
-      status: val.status,
-      photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(val.name)}&background=random`
-    };
+    this.spinner.show(this.isEditMode ? 'Updating student record...' : 'Registering new student...');
+    
+    setTimeout(() => {
+      const val = this.studentForm.value;
+      const studentData: Student = {
+        studentId: this.isEditMode ? (this.data.students().find(s => s.id === this.studentIdToEdit)?.studentId || 'STD-2026') : `STD-2026-00${this.data.students().length + 1}`,
+        name: val.name,
+        email: val.email,
+        phone: val.phone,
+        gender: val.gender,
+        dob: val.dob,
+        classId: val.classId,
+        sectionId: val.sectionId,
+        rollNumber: val.rollNumber,
+        address: val.address,
+        parent: {
+          fatherName: val.fatherName,
+          motherName: val.motherName,
+          phone: val.parentPhone
+        },
+        status: val.status,
+        photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(val.name)}&background=random`
+      };
 
-    if (this.isEditMode && this.studentIdToEdit) {
-      this.data.updateStudent(this.studentIdToEdit, studentData);
-    } else {
-      this.data.addStudent(studentData);
-    }
+      if (this.isEditMode && this.studentIdToEdit) {
+        this.data.updateStudent(this.studentIdToEdit, studentData);
+        this.toast.success(`Student ${val.name} updated successfully!`, 'Record Updated');
+      } else {
+        this.data.addStudent(studentData);
+        this.toast.success(`Student ${val.name} registered successfully!`, 'Student Registered');
+      }
 
-    this.loading = false;
-    this.router.navigate(['/students']);
+      this.loading = false;
+      this.spinner.hide();
+      this.router.navigate(['/students']);
+    }, 400);
   }
 }

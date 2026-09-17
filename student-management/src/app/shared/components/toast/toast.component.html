@@ -1,0 +1,18 @@
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast show align-items-center bg-white shadow-lg rounded-3 mb-2 overflow-hidden toast-card"
+         [class]="getBorderClass(toast.type)"
+         role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex p-3 align-items-start gap-3">
+        <i class="bi fs-4" [class]="getIconClass(toast.type)"></i>
+        <div class="flex-grow-1">
+          @if (toast.title) {
+            <h6 class="fw-bold mb-1 text-dark small">{{ toast.title }}</h6>
+          }
+          <div class="toast-message text-secondary extra-small">{{ toast.message }}</div>
+        </div>
+        <button type="button" class="btn-close btn-close-sm ms-auto" aria-label="Close" (click)="dismiss(toast.id)"></button>
+      </div>
+    </div>
+  }
+</div>

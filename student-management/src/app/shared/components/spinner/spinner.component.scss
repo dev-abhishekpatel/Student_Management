@@ -1,0 +1,68 @@
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.spinner-card {
+  min-width: 200px;
+  max-width: 320px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  animation: scaleUp 0.2s ease-out;
+}
+
+.custom-spinner {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-ring {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(79, 70, 229, 0.15);
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-core {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #4f46e5;
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  from { transform: scale(0.7); opacity: 0.6; }
+  to { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.extra-small {
+  font-size: 0.78rem;
+}

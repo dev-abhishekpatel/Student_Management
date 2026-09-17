@@ -2,6 +2,8 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SpinnerService } from '../../core/services/spinner.service';
 import { FeeRecord } from '../../core/models/models';
 
 @Component({
@@ -43,7 +45,11 @@ export class FeesComponent {
 
   studentsList = computed(() => this.data.students());
 
-  constructor(public data: DataService) {}
+  constructor(
+    public data: DataService,
+    private toast: ToastService,
+    private spinner: SpinnerService
+  ) {}
 
   openPaymentModal(fee: FeeRecord) {
     this.selectedFeeId.set(fee.id!);
@@ -53,30 +59,44 @@ export class FeesComponent {
 
   submitPayment() {
     const id = this.selectedFeeId();
-    if (!id || this.payAmount <= 0) return;
-    const today = new Date().toISOString().split('T')[0];
-    this.data.updateFeePayment(id, Number(this.payAmount), today, this.paymentRef);
-    alert('Payment successfully recorded!');
+    if (!id || this.payAmount <= 0) {
+      this.toast.warning('Please enter a valid payment amount.', 'Invalid Amount');
+      return;
+    }
+    this.spinner.show('Processing payment...');
+    setTimeout(() => {
+      const today = new Date().toISOString().split('T')[0];
+      this.data.updateFeePayment(id, Number(this.payAmount), today, this.paymentRef);
+      this.toast.success(`Payment of ₹${this.payAmount} recorded successfully! Ref: ${this.paymentRef}`, 'Payment Confirmed');
+      this.spinner.hide();
+    }, 350);
   }
 
   createFeeNotice() {
-    if (!this.newStudentId) return;
+    if (!this.newStudentId) {
+      this.toast.warning('Please select a student.', 'Missing Selection');
+      return;
+    }
     const student = this.data.students().find(s => s.id === this.newStudentId);
     if (!student) return;
 
-    const newFee: FeeRecord = {
-      studentId: student.id!,
-      studentName: student.name,
-      classId: student.classId,
-      feeType: this.feeType,
-      amount: Number(this.totalAmount),
-      paidAmount: 0,
-      dueAmount: Number(this.totalAmount),
-      dueDate: this.dueDate,
-      status: 'Pending'
-    };
+    this.spinner.show('Generating fee record...');
+    setTimeout(() => {
+      const newFee: FeeRecord = {
+        studentId: student.id!,
+        studentName: student.name,
+        classId: student.classId,
+        feeType: this.feeType,
+        amount: Number(this.totalAmount),
+        paidAmount: 0,
+        dueAmount: Number(this.totalAmount),
+        dueDate: this.dueDate,
+        status: 'Pending'
+      };
 
-    this.data.addFeeRecord(newFee);
-    alert('Fee record generated for student!');
+      this.data.addFeeRecord(newFee);
+      this.toast.success(`Fee invoice generated for ${student.name} (${this.feeType}: ₹${this.totalAmount})`, 'Invoice Generated');
+      this.spinner.hide();
+    }, 350);
   }
 }

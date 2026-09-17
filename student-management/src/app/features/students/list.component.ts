@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Student } from '../../core/models/models';
 
 @Component({
@@ -48,7 +49,8 @@ export class StudentsListComponent {
 
   constructor(
     public data: DataService,
-    public auth: AuthService
+    public auth: AuthService,
+    private toast: ToastService
   ) {}
 
   viewDetail(student: Student) {
@@ -56,8 +58,10 @@ export class StudentsListComponent {
   }
 
   deleteStudent(id: string) {
-    if (confirm('Are you sure you want to delete this student record?')) {
+    const st = this.data.students().find(s => s.id === id);
+    if (confirm(`Are you sure you want to delete ${st?.name || 'this student'}?`)) {
       this.data.deleteStudent(id);
+      this.toast.info(`Student record for ${st?.name || id} has been removed.`, 'Record Deleted');
       if (this.selectedStudent()?.id === id) {
         this.selectedStudent.set(null);
       }

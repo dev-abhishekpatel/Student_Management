@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SpinnerService } from '../../core/services/spinner.service';
 import { AttendanceRecord } from '../../core/models/models';
 
 interface AttendanceRow {
@@ -32,7 +34,9 @@ export class AttendanceComponent {
 
   constructor(
     public data: DataService,
-    public auth: AuthService
+    public auth: AuthService,
+    private toast: ToastService,
+    private spinner: SpinnerService
   ) {
     this.loadRoster();
   }
@@ -75,23 +79,27 @@ export class AttendanceComponent {
   }
 
   saveAttendance() {
-    const dt = this.selectedDate();
-    const cls = this.selectedClass();
-    const teacherName = this.auth.currentUser()?.name || 'Class Teacher';
+    this.spinner.show('Saving class attendance sheet...');
+    setTimeout(() => {
+      const dt = this.selectedDate();
+      const cls = this.selectedClass();
+      const teacherName = this.auth.currentUser()?.name || 'Class Teacher';
 
-    const records: AttendanceRecord[] = this.attendanceRows().map(r => ({
-      studentId: r.studentId,
-      studentName: r.studentName,
-      rollNumber: r.rollNumber,
-      classId: cls,
-      date: dt,
-      status: r.status,
-      remarks: r.remarks,
-      markedBy: teacherName
-    }));
+      const records: AttendanceRecord[] = this.attendanceRows().map(r => ({
+        studentId: r.studentId,
+        studentName: r.studentName,
+        rollNumber: r.rollNumber,
+        classId: cls,
+        date: dt,
+        status: r.status,
+        remarks: r.remarks,
+        markedBy: teacherName
+      }));
 
-    this.data.markAttendance(records);
-    alert('Attendance successfully saved!');
+      this.data.markAttendance(records);
+      this.toast.success(`Attendance records for ${cls} on ${dt} saved!`, 'Attendance Saved');
+      this.spinner.hide();
+    }, 350);
   }
 
   get stats() {

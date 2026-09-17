@@ -1,0 +1,12 @@
+@if (spinnerService.isLoading()) {
+  <div class="spinner-overlay d-flex flex-column align-items-center justify-content-center">
+    <div class="spinner-card bg-white p-4 rounded-4 shadow-lg text-center d-flex flex-column align-items-center">
+      <div class="custom-spinner mb-3">
+        <div class="spinner-ring"></div>
+        <div class="spinner-core"></div>
+      </div>
+      <div class="fw-semibold text-dark small">{{ spinnerService.message() }}</div>
+      <div class="extra-small text-muted mt-1">Please wait...</div>
+    </div>
+  </div>
+}

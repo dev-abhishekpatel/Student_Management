@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SpinnerService } from '../../core/services/spinner.service';
 import { SchoolSettings } from '../../core/models/models';
 
 @Component({
@@ -24,15 +26,24 @@ export class SettingsComponent implements OnInit {
 
   savedMessage = false;
 
-  constructor(public data: DataService) {}
+  constructor(
+    public data: DataService,
+    private toast: ToastService,
+    private spinner: SpinnerService
+  ) {}
 
   ngOnInit() {
     this.settings = { ...this.data.schoolSettings() };
   }
 
   save() {
-    this.data.updateSettings(this.settings);
-    this.savedMessage = true;
-    setTimeout(() => this.savedMessage = false, 3000);
+    this.spinner.show('Saving institutional settings...');
+    setTimeout(() => {
+      this.data.updateSettings(this.settings);
+      this.savedMessage = true;
+      this.toast.success('School configuration updated successfully!', 'Settings Saved');
+      this.spinner.hide();
+      setTimeout(() => this.savedMessage = false, 3000);
+    }, 350);
   }
 }
