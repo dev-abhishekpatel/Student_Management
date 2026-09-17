@@ -109,7 +109,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-sm"
+        <button type="submit" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-sm mb-3"
                 [class.btn-success]="activeTab === 'student'"
                 [class.btn-info]="activeTab === 'teacher'"
                 [class.btn-primary]="activeTab === 'admin'"
@@ -120,6 +120,17 @@
             Sign In as {{ activeTab | uppercase }} <i class="bi bi-arrow-right ms-1"></i>
           }
         </button>
+
+        <!-- New User Registration Link -->
+        <div class="text-center bg-white p-2.5 rounded-3 border extra-small mb-3">
+          <span class="text-muted me-1">Don't have an account?</span>
+          <a routerLink="/register" class="fw-bold text-decoration-none"
+             [class.text-success]="activeTab === 'student'"
+             [class.text-info]="activeTab === 'teacher'"
+             [class.text-primary]="activeTab === 'admin'">
+            Register New Account <i class="bi bi-person-plus-fill ms-1"></i>
+          </a>
+        </div>
       </form>
 
       <!-- Quick Demo Access Section -->

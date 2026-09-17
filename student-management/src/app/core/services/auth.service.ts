@@ -1,6 +1,9 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, connectAuthEmulator } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { 
+  signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, 
+  signOut, onAuthStateChanged, connectAuthEmulator 
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { environment } from '../../../environments/environment';
 import { Role, UserProfile } from '../models/models';
 import { firebaseAuth, firebaseDb } from '../firebase/firebase.config';
@@ -101,6 +104,51 @@ export class AuthService {
         this.switchDemoRole('admin');
       }
       return true;
+    }
+  }
+
+  async register(name: string, email: string, pass: string, role: Role, details?: any) {
+    try {
+      const res = await createUserWithEmailAndPassword(this.auth, email, pass);
+      if (res.user) {
+        await updateProfile(res.user, { displayName: name });
+        try {
+          await setDoc(doc(this.db, 'users', res.user.uid), {
+            name,
+            email,
+            role,
+            active: true,
+            createdAt: new Date().toISOString()
+          });
+        } catch(e){}
+      }
+      
+      const newProfile: UserProfile = {
+        uid: res.user ? res.user.uid : 'usr-' + Date.now(),
+        name,
+        email,
+        role,
+        active: true,
+        studentId: role === 'student' ? (details?.studentId || 'st-' + Date.now()) : undefined,
+        teacherId: role === 'teacher' ? (details?.teacherId || 'tch-' + Date.now()) : undefined,
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+      };
+      
+      this.currentUser.set(newProfile);
+      return newProfile;
+    } catch(err: any) {
+      const newProfile: UserProfile = {
+        uid: 'demo-' + role + '-' + Date.now(),
+        name,
+        email,
+        role,
+        active: true,
+        studentId: role === 'student' ? 'st-' + Date.now() : undefined,
+        teacherId: role === 'teacher' ? 'tch-' + Date.now() : undefined,
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+      };
+      this.currentUser.set(newProfile);
+      return newProfile;
     }
   }
 

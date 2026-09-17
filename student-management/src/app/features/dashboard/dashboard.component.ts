@@ -92,7 +92,7 @@ export class DashboardComponent {
     public auth: AuthService,
     public data: DataService,
     private toast: ToastService
-  ) {}
+  ) { }
 
   openPayModal(fee: FeeRecord) {
     this.selectedFee.set(fee);
@@ -110,7 +110,7 @@ export class DashboardComponent {
     const amount = Number(this.payAmount());
     const txnRef = 'TXN-' + Math.floor(100000 + Math.random() * 900000);
     const today = new Date().toISOString().split('T')[0];
-    
+
     this.data.updateFeePayment(fee.id!, amount, today, txnRef);
     this.toast.success(`Payment of ₹${amount} successful!`, `Receipt ${txnRef} generated & saved to database.`);
     this.closePayModal();

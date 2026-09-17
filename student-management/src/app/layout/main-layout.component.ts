@@ -5,6 +5,8 @@ import { AuthService } from '../core/services/auth.service';
 import { DataService } from '../core/services/data.service';
 import { Role } from '../core/models/models';
 
+import { ToastService } from '../core/services/toast.service';
+
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -18,7 +20,8 @@ export class MainLayoutComponent {
   constructor(
     public auth: AuthService,
     public data: DataService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   toggleSidebar() {
@@ -31,6 +34,7 @@ export class MainLayoutComponent {
 
   logout() {
     this.auth.logout();
+    this.toast.info('You have been signed out.', 'Logged Out');
     this.router.navigate(['/login']);
   }
 }

@@ -1,0 +1,21 @@
+.register-wrapper {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+.bg-student {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-teacher {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+}
+
+.btn-student-active {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+.btn-teacher-active {
+  background-color: #0284c7 !important;
+  color: white !important;
+}
