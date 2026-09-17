@@ -1,153 +1,92 @@
-<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 p-3">
-  <div class="login-card card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 520px; width: 100%;">
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-4">
+  <div class="login-card card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 440px; width: 100%;">
 
-    <!-- Header Banner with Academy Info -->
-    <div class="card-header border-0 text-white text-center p-4" 
-         [class.bg-student]="activeTab === 'student'"
-         [class.bg-teacher]="activeTab === 'teacher'"
-         [class.bg-admin]="activeTab === 'admin'">
-      <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-2 p-3" style="width: 60px; height: 60px;">
-        @if (activeTab === 'student') {
-          <i class="bi bi-backpack-fill fs-2 text-warning"></i>
-        } @else if (activeTab === 'teacher') {
-          <i class="bi bi-person-badge-fill fs-2 text-info"></i>
-        } @else {
-          <i class="bi bi-shield-lock-fill fs-2 text-light"></i>
-        }
+    <!-- Header Banner -->
+    <div class="card-header border-0 text-white text-center p-4 bg-primary bg-gradient position-relative">
+      <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-2 p-3" style="width: 64px; height: 64px;">
+        <i class="bi bi-shield-lock-fill fs-1 text-light"></i>
       </div>
       <h3 class="fw-bold mb-1">St. Xavier Academy</h3>
       <p class="text-white-50 small mb-0 font-monospace text-uppercase">
-        {{ activeTab }} Portal Authentication
+        Student & Portal Sign In
       </p>
     </div>
 
-    <!-- Role Selection Tabs -->
-    <div class="card-body p-4 bg-body-tertiary">
-      <div class="nav nav-pills nav-fill bg-white p-1.5 rounded-3 border shadow-sm mb-4">
-        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
-                [class.active]="activeTab === 'student'"
-                [class.btn-student-active]="activeTab === 'student'"
-                (click)="selectTab('student')">
-          <i class="bi bi-person-fill text-success"></i> Student
-        </button>
-        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
-                [class.active]="activeTab === 'teacher'"
-                [class.btn-teacher-active]="activeTab === 'teacher'"
-                (click)="selectTab('teacher')">
-          <i class="bi bi-person-workspace text-info"></i> Teacher
-        </button>
-        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
-                [class.active]="activeTab === 'admin'"
-                [class.btn-admin-active]="activeTab === 'admin'"
-                (click)="selectTab('admin')">
-          <i class="bi bi-shield-check text-primary"></i> Admin
-        </button>
-      </div>
-
-      <!-- Role Information Box -->
-      <div class="p-3 rounded-3 mb-4 extra-small border d-flex align-items-center gap-3"
-           [class.bg-success-subtle]="activeTab === 'student'"
-           [class.border-success-subtle]="activeTab === 'student'"
-           [class.bg-info-subtle]="activeTab === 'teacher'"
-           [class.border-info-subtle]="activeTab === 'teacher'"
-           [class.bg-primary-subtle]="activeTab === 'admin'"
-           [class.border-primary-subtle]="activeTab === 'admin'">
-        <i class="bi fs-4"
-           [class.bi-info-circle-fill]="true"
-           [class.text-success]="activeTab === 'student'"
-           [class.text-info]="activeTab === 'teacher'"
-           [class.text-primary]="activeTab === 'admin'"></i>
-        <div>
-          @if (activeTab === 'student') {
-            <strong>Student Login Mode:</strong> View your personal timetable, attendance percentage, report cards, exam marks, and online fee payments.
-          } @else if (activeTab === 'teacher') {
-            <strong>Teacher Login Mode:</strong> Manage assigned classes, mark student attendance, upload exam marks, and view teaching schedules.
-          } @else {
-            <strong>Administrator Mode:</strong> Full management center for students, teachers, classes, financial metrics, notices, and settings.
-          }
-        </div>
-      </div>
-
+    <div class="card-body p-4 bg-white">
       @if (error) {
-        <div class="alert alert-danger border-0 d-flex align-items-center small mb-4 rounded-3">
-          <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
+        <div class="alert alert-danger border-0 d-flex align-items-center small mb-4 rounded-3 p-3 shadow-xs">
+          <i class="bi bi-exclamation-triangle-fill fs-4 me-2 flex-shrink-0 text-danger"></i>
+          <div>{{ error }}</div>
         </div>
       }
 
-      <form (ngSubmit)="submit()" class="mb-4">
-        <!-- User Identifier / Email -->
+      <form (ngSubmit)="submit()" class="mb-3">
+        <!-- Email Input -->
         <div class="mb-3">
-          <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">
-            @if (activeTab === 'student') { Student ID / Email } 
-            @else if (activeTab === 'teacher') { Teacher ID / Email } 
-            @else { Admin Email }
-          </label>
+          <label class="form-label text-muted extra-small fw-bold text-uppercase mb-1">Email Address</label>
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
-            <input type="email" class="form-control border-start-0 ps-0 shadow-none" 
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
+            <input type="email" class="form-control bg-light border-start-0 ps-0 py-2.5 shadow-none" 
                    [(ngModel)]="email" name="email" 
-                   [placeholder]="activeTab === 'student' ? 'aarav.patel@school.com' : (activeTab === 'teacher' ? 'robert@school.com' : 'admin@school.com')" 
-                   required />
+                   placeholder="e.g. admin@school.com" required />
           </div>
         </div>
 
-        <!-- Password -->
+        <!-- Password Input -->
         <div class="mb-4">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-0">Password</label>
-            <span class="text-muted extra-small">Default: <code class="text-primary">password123</code></span>
+            <label class="form-label text-muted extra-small fw-bold text-uppercase mb-0">Password</label>
           </div>
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key-fill"></i></span>
             <input [type]="showPassword ? 'text' : 'password'" 
-                   class="form-control border-start-0 border-end-0 ps-0 shadow-none" 
+                   class="form-control bg-light border-start-0 border-end-0 ps-0 py-2.5 shadow-none" 
                    [(ngModel)]="password" name="password" 
                    placeholder="••••••••" required />
-            <button class="btn btn-outline-secondary border-start-0 bg-white text-muted" type="button" (click)="togglePasswordVisibility()">
+            <button class="btn btn-outline-secondary border-start-0 bg-light text-muted" type="button" (click)="togglePasswordVisibility()">
               <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
             </button>
           </div>
         </div>
 
-        <button type="submit" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-sm mb-3"
-                [class.btn-success]="activeTab === 'student'"
-                [class.btn-info]="activeTab === 'teacher'"
-                [class.btn-primary]="activeTab === 'admin'"
+        <!-- Sign In Button -->
+        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm mb-3 text-uppercase"
                 [disabled]="loading">
           @if (loading) {
-            <span class="spinner-border spinner-border-sm me-2"></span> Logging in...
+            <span class="spinner-border spinner-border-sm me-2"></span> Authenticating...
           } @else {
-            Sign In as {{ activeTab | uppercase }} <i class="bi bi-arrow-right ms-1"></i>
+            Sign In <i class="bi bi-arrow-right ms-1"></i>
           }
         </button>
-
-        <!-- New User Registration Link -->
-        <div class="text-center bg-white p-2.5 rounded-3 border extra-small mb-3">
-          <span class="text-muted me-1">Don't have an account?</span>
-          <a routerLink="/register" class="fw-bold text-decoration-none"
-             [class.text-success]="activeTab === 'student'"
-             [class.text-info]="activeTab === 'teacher'"
-             [class.text-primary]="activeTab === 'admin'">
-            Register New Account <i class="bi bi-person-plus-fill ms-1"></i>
-          </a>
-        </div>
       </form>
 
-      <!-- Quick Demo Access Section -->
+      <!-- Prominent Create Account Link -->
+      <div class="text-center bg-light p-3 rounded-3 border mb-3">
+        <span class="text-muted small me-1">Don't have an account?</span>
+        <a [routerLink]="['/register']" class="fw-bold text-primary text-decoration-none">
+          Create Account <i class="bi bi-person-plus-fill ms-1"></i>
+        </a>
+        <div class="extra-small text-muted mt-1">
+          <i class="bi bi-shield-check text-warning me-1"></i>New accounts require Admin approval to activate.
+        </div>
+      </div>
+
+      <!-- Quick 1-Click Demo Login Shortcuts -->
       <div class="border-top pt-3">
-        <div class="text-center text-muted extra-small mb-2 fw-semibold text-uppercase">Instant 1-Click Demo Login:</div>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-          <button type="button" class="btn btn-xs btn-outline-success rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('student')">
-            <i class="bi bi-backpack-fill me-1"></i> Student Demo
+        <div class="text-center text-muted extra-small mb-2 fw-bold text-uppercase">1-Click Demo Sign In:</div>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('admin')">
+            <i class="bi bi-shield-lock-fill me-1"></i> Admin
           </button>
           <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('teacher')">
-            <i class="bi bi-person-badge-fill me-1"></i> Teacher Demo
+            <i class="bi bi-person-badge-fill me-1"></i> Teacher
           </button>
-          <button type="button" class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('admin')">
-            <i class="bi bi-shield-lock-fill me-1"></i> Admin Demo
+          <button type="button" class="btn btn-xs btn-outline-success rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('student')">
+            <i class="bi bi-backpack-fill me-1"></i> Student
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </div>

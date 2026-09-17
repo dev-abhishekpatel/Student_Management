@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SpinnerService } from '../../core/services/spinner.service';
 import { Exam, MarkRecord } from '../../core/models/models';
 
 interface MarkEntryRow {
@@ -40,7 +42,9 @@ export class ExamsComponent {
 
   constructor(
     public data: DataService,
-    public auth: AuthService
+    public auth: AuthService,
+    private toast: ToastService,
+    private spinner: SpinnerService
   ) {
     this.loadMarksMatrix();
   }
@@ -83,31 +87,38 @@ export class ExamsComponent {
   }
 
   saveMarks() {
-    const exam = this.data.exams().find(e => e.id === this.selectedExamId());
-    const examName = exam ? exam.name : 'Examination';
-    const cls = this.selectedClass();
-    const subj = this.selectedSubject();
+    this.spinner.show('Saving exam result sheet...');
+    setTimeout(() => {
+      const exam = this.data.exams().find(e => e.id === this.selectedExamId());
+      const examName = exam ? exam.name : 'Examination';
+      const cls = this.selectedClass();
+      const subj = this.selectedSubject();
 
-    const records: MarkRecord[] = this.markRows().map(r => ({
-      examId: this.selectedExamId(),
-      examName,
-      studentId: r.studentId,
-      studentName: r.studentName,
-      rollNumber: r.rollNumber,
-      classId: cls,
-      subjectName: subj,
-      marksObtained: Number(r.marksObtained),
-      maxMarks: Number(r.maxMarks),
-      grade: this.calculateGrade(Number(r.marksObtained), Number(r.maxMarks)),
-      comments: r.comments
-    }));
+      const records: MarkRecord[] = this.markRows().map(r => ({
+        examId: this.selectedExamId(),
+        examName,
+        studentId: r.studentId,
+        studentName: r.studentName,
+        rollNumber: r.rollNumber,
+        classId: cls,
+        subjectName: subj,
+        marksObtained: Number(r.marksObtained),
+        maxMarks: Number(r.maxMarks),
+        grade: this.calculateGrade(Number(r.marksObtained), Number(r.maxMarks)),
+        comments: r.comments
+      }));
 
-    this.data.saveMarks(records);
-    alert('Exam marks saved successfully!');
+      this.data.saveMarks(records);
+      this.toast.success(`Exam marks for ${subj} (${cls}) saved to database!`, 'Marks Matrix Saved');
+      this.spinner.hide();
+    }, 350);
   }
 
   createExam() {
-    if (!this.examName) return;
+    if (!this.examName) {
+      this.toast.warning('Please enter examination title.', 'Validation Error');
+      return;
+    }
     const newExam: Exam = {
       name: this.examName,
       academicYear: '2025-2026',
@@ -118,6 +129,8 @@ export class ExamsComponent {
     };
 
     this.data.addExam(newExam);
+    this.toast.success(`Examination "${this.examName}" created!`, 'Exam Created');
     this.examName = '';
   }
 }
+

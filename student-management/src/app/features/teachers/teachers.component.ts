@@ -2,6 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Teacher } from '../../core/models/models';
 
 @Component({
@@ -35,10 +36,16 @@ export class TeachersComponent {
     return list;
   });
 
-  constructor(public data: DataService) {}
+  constructor(
+    public data: DataService,
+    private toast: ToastService
+  ) {}
 
   addTeacher() {
-    if (!this.name || !this.email) return;
+    if (!this.name || !this.email) {
+      this.toast.warning('Please enter both name and email.', 'Incomplete Fields');
+      return;
+    }
     const subjects = this.subjectStr.split(',').map(s => s.trim()).filter(Boolean);
 
     const newTeacher: Teacher = {
@@ -56,6 +63,7 @@ export class TeachersComponent {
     };
 
     this.data.addTeacher(newTeacher);
+    this.toast.success(`Faculty profile for ${this.name} added!`, 'Teacher Saved');
 
     // Reset Form
     this.name = '';
@@ -66,8 +74,11 @@ export class TeachersComponent {
   }
 
   deleteTeacher(id: string) {
-    if (confirm('Delete teacher record?')) {
+    const tch = this.data.teachers().find(t => t.id === id);
+    if (confirm(`Are you sure you want to delete teacher record for ${tch?.name || 'this faculty member'}?`)) {
       this.data.deleteTeacher(id);
+      this.toast.info(`Teacher record ${tch?.name || id} deleted.`, 'Record Removed');
     }
   }
 }
+

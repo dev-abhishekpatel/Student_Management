@@ -1,10 +1,16 @@
-<div class="settings-container animate-fade-in" style="max-width: 900px; margin: 0 auto;">
+<div class="settings-container animate-fade-in" style="max-width: 1000px; margin: 0 auto;">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
-      <h4 class="fw-bold mb-1">System & School Settings</h4>
-      <p class="text-muted small mb-0">Configure institution branding, active academic term, and role access permissions.</p>
+      <h4 class="fw-bold mb-1">System & Admin Settings</h4>
+      <p class="text-muted small mb-0">Manage account permissions, approve new user sign-ups, and configure institution profile.</p>
     </div>
+    @if (pendingCount() > 0) {
+      <div class="badge bg-warning text-dark p-2 px-3 rounded-pill d-inline-flex align-items-center gap-2 shadow-xs">
+        <i class="bi bi-person-exclamation fs-6"></i>
+        <span><strong>{{ pendingCount() }} Account(s)</strong> awaiting Admin Approval</span>
+      </div>
+    }
   </div>
 
   @if (savedMessage) {
@@ -13,10 +19,124 @@
     </div>
   }
 
+  <!-- Admin User Management & Account Activation Card -->
+  <div class="card border-0 p-4 mb-4 shadow-sm">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3">
+      <div>
+        <h6 class="fw-bold text-primary mb-1">
+          <i class="bi bi-shield-lock-fill me-2"></i>User Management & Account Activation Permissions
+        </h6>
+        <p class="text-muted extra-small mb-0">Approve, activate, or deactivate user logins across the institution.</p>
+      </div>
+
+      <!-- Status Filter Pills -->
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-secondary" [class.active]="userFilterStatus() === 'All'" (click)="userFilterStatus.set('All')">
+          All ({{ auth.registeredAccounts().length }})
+        </button>
+        <button class="btn btn-outline-warning" [class.active]="userFilterStatus() === 'Pending'" (click)="userFilterStatus.set('Pending')">
+          Pending ({{ pendingCount() }})
+        </button>
+        <button class="btn btn-outline-success" [class.active]="userFilterStatus() === 'Active'" (click)="userFilterStatus.set('Active')">
+          Active
+        </button>
+        <button class="btn btn-outline-danger" [class.active]="userFilterStatus() === 'Inactive'" (click)="userFilterStatus.set('Inactive')">
+          Inactive
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="mb-3">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light text-muted"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control bg-light" placeholder="Search user by name, email, or role..."
+               [ngModel]="userSearch()" (ngModelChange)="userSearch.set($event)">
+      </div>
+    </div>
+
+    <!-- Registered Accounts Table -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-uppercase extra-small text-muted border-bottom">
+          <tr>
+            <th class="ps-3">User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Account Status</th>
+            <th class="text-end pe-3">Admin Actions</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          @for (user of filteredAccounts(); track user.uid) {
+            <tr [class.table-warning]="!user.active && user.status === 'Pending'">
+              <td class="ps-3">
+                <div class="d-flex align-items-center gap-2">
+                  <img [src]="user.avatarUrl || 'https://ui-avatars.com/api/?name=' + user.name" 
+                       class="rounded-circle border" width="32" height="32" alt="User">
+                  <div>
+                    <div class="fw-semibold text-dark">{{ user.name }}</div>
+                    <div class="extra-small text-muted">ID: {{ user.uid }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="font-monospace extra-small text-dark">{{ user.email }}</td>
+              <td>
+                <select class="form-select form-select-sm bg-light py-0 px-2 extra-small w-auto border"
+                        [ngModel]="user.role" (ngModelChange)="changeUserRole(user.uid, $event)">
+                  <option value="admin">Admin</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="student">Student</option>
+                </select>
+              </td>
+              <td>
+                @if (user.active) {
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1">
+                    <i class="bi bi-check-circle-fill me-1"></i> Active
+                  </span>
+                } @else if (user.status === 'Pending') {
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1">
+                    <i class="bi bi-clock-history me-1"></i> Pending Admin Approval
+                  </span>
+                } @else {
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1">
+                    <i class="bi bi-slash-circle me-1"></i> Inactive
+                  </span>
+                }
+              </td>
+              <td class="text-end pe-3">
+                <div class="btn-group btn-group-sm">
+                  @if (!user.active) {
+                    <button class="btn btn-success btn-sm fw-bold px-2.5" (click)="approveAccount(user.uid, user.name)" title="Approve & Activate Account">
+                      <i class="bi bi-check-lg me-1"></i> Activate
+                    </button>
+                  } @else {
+                    <button class="btn btn-outline-warning btn-sm px-2.5" (click)="deactivateAccount(user.uid, user.name)" title="Deactivate Access">
+                      <i class="bi bi-pause-circle me-1"></i> Deactivate
+                    </button>
+                  }
+                  <button class="btn btn-outline-danger btn-sm px-2" (click)="deleteAccount(user.uid, user.name)" title="Delete Account">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted extra-small">
+                No user accounts match the selected search or status filter.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <form (ngSubmit)="save()">
     <!-- Institution Details -->
     <div class="card border-0 p-4 mb-4 shadow-sm">
-      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-2"></i>Institution Profile</h6>
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-2"></i>Institution Profile & Information</h6>
       <div class="row g-3">
         <div class="col-md-8">
           <label class="form-label small fw-semibold">School / Academy Name</label>

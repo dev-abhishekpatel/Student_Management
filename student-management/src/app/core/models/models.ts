@@ -7,6 +7,7 @@ export interface UserProfile {
   role: Role;
   avatarUrl?: string;
   active: boolean;
+  status?: 'Active' | 'Pending' | 'Inactive';
   studentId?: string;
   teacherId?: string;
   createdAt?: any;

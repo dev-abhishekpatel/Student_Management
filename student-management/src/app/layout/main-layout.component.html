@@ -1,12 +1,12 @@
-<div class="app-shell d-flex flex-column vh-100">
+<div class="app-shell d-flex flex-column vh-100 position-relative">
   <!-- Top Navigation Bar -->
-  <header class="top-navbar bg-white border-bottom shadow-xs sticky-top px-3 py-2 d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-3">
-      <button class="btn btn-icon btn-light rounded-circle" (click)="toggleSidebar()" title="Toggle Menu">
-        <i class="bi bi-list fs-5"></i>
+  <header class="top-navbar bg-white border-bottom shadow-xs sticky-top px-3 py-2 d-flex align-items-center justify-content-between z-3">
+    <div class="d-flex align-items-center gap-2 gap-md-3">
+      <button class="btn btn-icon btn-light rounded-circle shadow-xs" (click)="toggleSidebar()" title="Toggle Menu" aria-label="Toggle Navigation Menu">
+        <i class="bi bi-list fs-4 text-dark"></i>
       </button>
       <a routerLink="/dashboard" class="brand-title d-flex align-items-center gap-2 text-decoration-none">
-        <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+        <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 38px; height: 38px;">
           SX
         </div>
         <span class="fw-bold fs-5 text-dark d-none d-sm-inline">St. Xavier Academy</span>
@@ -14,36 +14,34 @@
       <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 small d-none d-md-inline-block">
         AY {{ data.schoolSettings().academicYear }}
       </span>
-      <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 small d-none d-lg-inline-flex align-items-center gap-1">
-        <i class="bi bi-database-fill-check"></i> Firestore DB Connected
-      </span>
     </div>
 
     <!-- Quick Role Switcher Bar & User Profile -->
     <div class="d-flex align-items-center gap-2 gap-md-3">
-      <!-- Quick Role Toggle for Demo -->
+      <!-- Role Toggle for Demo -->
       <div class="role-switcher-pill bg-light rounded-pill p-1 border d-none d-md-flex align-items-center">
-        <span class="text-muted small px-2 me-1 font-monospace">ROLE:</span>
-        <button class="btn btn-xs rounded-pill px-2.5 py-1" 
+        <span class="text-muted extra-small px-2 me-1 font-monospace fw-bold">ROLE:</span>
+        <button class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold" 
                 [class.btn-primary]="auth.currentRole() === 'admin'" 
                 [class.btn-light]="auth.currentRole() !== 'admin'"
                 (click)="changeDemoRole('admin')">Admin</button>
-        <button class="btn btn-xs rounded-pill px-2.5 py-1" 
-                [class.btn-primary]="auth.currentRole() === 'teacher'" 
+        <button class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold" 
+                [class.btn-info]="auth.currentRole() === 'teacher'" 
+                [class.text-white]="auth.currentRole() === 'teacher'"
                 [class.btn-light]="auth.currentRole() !== 'teacher'"
                 (click)="changeDemoRole('teacher')">Teacher</button>
-        <button class="btn btn-xs rounded-pill px-2.5 py-1" 
-                [class.btn-primary]="auth.currentRole() === 'student'" 
+        <button class="btn btn-xs rounded-pill px-2.5 py-1 fw-bold" 
+                [class.btn-success]="auth.currentRole() === 'student'" 
                 [class.btn-light]="auth.currentRole() !== 'student'"
                 (click)="changeDemoRole('student')">Student</button>
       </div>
 
-      <!-- Active User Profile Dropdown -->
+      <!-- User Profile Dropdown -->
       <div class="dropdown">
-        <button class="btn btn-light rounded-pill border px-3 py-1.5 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <button class="btn btn-light rounded-pill border px-2.5 px-md-3 py-1.5 d-flex align-items-center gap-2 dropdown-toggle shadow-xs" type="button" data-bs-toggle="dropdown">
           <img [src]="auth.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + auth.currentUser()?.name" 
-               class="rounded-circle" width="28" height="28" alt="User">
-          <span class="fw-medium small text-dark d-none d-sm-inline">{{ auth.currentUser()?.name }}</span>
+               class="rounded-circle border" width="30" height="30" alt="User">
+          <span class="fw-bold small text-dark d-none d-sm-inline">{{ auth.currentUser()?.name }}</span>
           <span class="badge rounded-pill text-uppercase ms-1"
                 [class.bg-danger]="auth.currentRole() === 'admin'"
                 [class.bg-info]="auth.currentRole() === 'teacher'"
@@ -51,95 +49,101 @@
             {{ auth.currentRole() }}
           </span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 py-2">
           <li class="px-3 py-2 border-bottom">
-            <div class="fw-bold small">{{ auth.currentUser()?.name }}</div>
+            <div class="fw-bold small text-dark">{{ auth.currentUser()?.name }}</div>
             <div class="text-muted text-truncate extra-small">{{ auth.currentUser()?.email }}</div>
           </li>
-          <li><a class="dropdown-item py-2 small" routerLink="/settings"><i class="bi bi-gear me-2 text-muted"></i>Settings</a></li>
+          <li><a class="dropdown-item py-2 small" routerLink="/settings" (click)="closeMobileSidebar()"><i class="bi bi-gear me-2 text-muted"></i>Settings</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><button class="dropdown-item py-2 small text-danger" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button></li>
+          <li><button class="dropdown-item py-2 small text-danger fw-bold" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button></li>
         </ul>
       </div>
     </div>
   </header>
 
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  @if (mobileSidebarOpen()) {
+    <div class="sidebar-backdrop d-md-none" (click)="closeMobileSidebar()"></div>
+  }
+
   <!-- Main Body Layout: Sidebar + Main Content -->
-  <div class="d-flex flex-grow-1 overflow-hidden">
+  <div class="d-flex flex-grow-1 overflow-hidden position-relative">
     <!-- Collapsible Responsive Sidebar -->
     <aside class="app-sidebar bg-dark text-white border-end d-flex flex-column transition-all"
-           [class.collapsed]="sidebarCollapsed()">
+           [class.collapsed]="sidebarCollapsed()"
+           [class.mobile-open]="mobileSidebarOpen()">
       <div class="sidebar-nav flex-grow-1 py-3 px-2 overflow-y-auto">
         <div class="nav flex-column gap-1">
 
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-grid-1x2-fill fs-5 text-primary"></i>
-            <span class="nav-text">Dashboard</span>
+            <span class="nav-text fw-medium">Dashboard</span>
           </a>
 
           @if (auth.currentRole() === 'admin' || auth.currentRole() === 'teacher') {
-            <a routerLink="/students" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+            <a routerLink="/students" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
               <i class="bi bi-people-fill fs-5 text-info"></i>
-              <span class="nav-text">Students</span>
+              <span class="nav-text fw-medium">Students</span>
             </a>
           } @else {
-            <a routerLink="/students" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+            <a routerLink="/students" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
               <i class="bi bi-person-badge-fill fs-5 text-info"></i>
-              <span class="nav-text">My Profile</span>
+              <span class="nav-text fw-medium">My Profile</span>
             </a>
           }
 
           @if (auth.currentRole() === 'admin') {
-            <a routerLink="/teachers" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+            <a routerLink="/teachers" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
               <i class="bi bi-person-workspace fs-5 text-warning"></i>
-              <span class="nav-text">Teachers</span>
+              <span class="nav-text fw-medium">Teachers</span>
             </a>
 
-            <a routerLink="/classes" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+            <a routerLink="/classes" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
               <i class="bi bi-building-fill fs-5 text-success"></i>
-              <span class="nav-text">Classes & Sections</span>
+              <span class="nav-text fw-medium">Classes & Sections</span>
             </a>
           }
 
-          <a routerLink="/attendance" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/attendance" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-calendar-check-fill fs-5 text-purple"></i>
-            <span class="nav-text">Attendance</span>
+            <span class="nav-text fw-medium">Attendance</span>
           </a>
 
-          <a routerLink="/timetable" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/timetable" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-clock-history fs-5 text-teal"></i>
-            <span class="nav-text">Timetable</span>
+            <span class="nav-text fw-medium">Timetable</span>
           </a>
 
-          <a routerLink="/exams" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/exams" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-journal-bookmark-fill fs-5 text-danger"></i>
-            <span class="nav-text">Exams & Results</span>
+            <span class="nav-text fw-medium">Exams & Results</span>
           </a>
 
-          <a routerLink="/fees" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/fees" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-cash-stack fs-5 text-emerald"></i>
-            <span class="nav-text">Fees & Payments</span>
+            <span class="nav-text fw-medium">Fees & Payments</span>
           </a>
 
-          <a routerLink="/notices" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/notices" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-megaphone-fill fs-5 text-orange"></i>
-            <span class="nav-text">Notices</span>
+            <span class="nav-text fw-medium">Notices</span>
           </a>
 
-          <a routerLink="/reports" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+          <a routerLink="/reports" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
             <i class="bi bi-bar-chart-line-fill fs-5 text-cyan"></i>
-            <span class="nav-text">Reports</span>
+            <span class="nav-text fw-medium">Reports</span>
           </a>
 
           @if (auth.currentRole() === 'admin') {
-            <a routerLink="/settings" routerLinkActive="active" class="nav-link text-white-50 rounded-3 px-3 py-2 d-flex align-items-center gap-3">
+            <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileSidebar()" class="nav-link text-white-50 rounded-3 px-3 py-2.5 d-flex align-items-center gap-3">
               <i class="bi bi-sliders fs-5 text-indigo"></i>
-              <span class="nav-text">Settings</span>
+              <span class="nav-text fw-medium">Settings & Users</span>
             </a>
           }
 
           <div class="border-top border-secondary border-opacity-25 my-2"></div>
-          <button class="nav-link text-danger rounded-3 px-3 py-2 d-flex align-items-center gap-3 bg-transparent border-0 w-100 text-start" (click)="logout()">
+          <button class="nav-link text-danger rounded-3 px-3 py-2.5 d-flex align-items-center gap-3 bg-transparent border-0 w-100 text-start" (click)="logout()">
             <i class="bi bi-box-arrow-right fs-5 text-danger"></i>
             <span class="nav-text fw-bold">Sign Out</span>
           </button>
@@ -150,7 +154,7 @@
       <!-- Sidebar Footer -->
       <div class="sidebar-footer p-3 border-top border-secondary border-opacity-25 text-white-50 extra-small">
         <div class="d-flex align-items-center justify-content-between">
-          <span>v2.5 Production</span>
+          <span>v2.5 System</span>
           <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2">Online</span>
         </div>
       </div>

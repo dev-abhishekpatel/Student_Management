@@ -1,165 +1,193 @@
-<div class="register-wrapper d-flex align-items-center justify-content-center min-vh-100 p-3">
-  <div class="register-card card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 600px; width: 100%;">
+<div class="register-wrapper d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-4">
+  <div class="register-card card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 580px; width: 100%;">
 
     <!-- Header Banner -->
-    <div class="card-header border-0 text-white text-center p-4"
-         [class.bg-student]="role === 'student'"
-         [class.bg-teacher]="role === 'teacher'">
+    <div class="card-header border-0 text-white text-center p-4 bg-primary bg-gradient">
       <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-2 p-3" style="width: 60px; height: 60px;">
-        @if (role === 'student') {
-          <i class="bi bi-backpack-fill fs-2 text-warning"></i>
+        @if (role === 'admin') {
+          <i class="bi bi-shield-check fs-2 text-white"></i>
+        } @else if (role === 'teacher') {
+          <i class="bi bi-person-badge-fill fs-2 text-white"></i>
         } @else {
-          <i class="bi bi-person-badge-fill fs-2 text-info"></i>
+          <i class="bi bi-backpack-fill fs-2 text-white"></i>
         }
       </div>
-      <h3 class="fw-bold mb-1">St. Xavier Academy</h3>
+      <h3 class="fw-bold mb-1">Create Account</h3>
       <p class="text-white-50 small mb-0 font-monospace text-uppercase">
-        New {{ role }} Account Registration
+        St. Xavier Academy — {{ role }} Registration
       </p>
     </div>
 
-    <div class="card-body p-4 bg-body-tertiary">
-      <!-- Role Selection Buttons -->
-      <div class="nav nav-pills nav-fill bg-white p-1.5 rounded-3 border shadow-sm mb-4">
-        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
-                [class.active]="role === 'student'"
-                [class.btn-student-active]="role === 'student'"
-                (click)="selectRole('student')">
-          <i class="bi bi-backpack text-success"></i> Register as Student
-        </button>
-        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
-                [class.active]="role === 'teacher'"
-                [class.btn-teacher-active]="role === 'teacher'"
-                (click)="selectRole('teacher')">
-          <i class="bi bi-person-workspace text-info"></i> Register as Teacher
-        </button>
-      </div>
+    <div class="card-body p-4 bg-white">
+      @if (registeredSuccess) {
+        <div class="alert alert-warning border-0 p-4 rounded-3 text-center mb-4 shadow-sm">
+          <div class="mb-3">
+            <i class="bi bi-hourglass-split text-warning display-4"></i>
+          </div>
+          <h5 class="fw-bold text-dark">Pending Admin Approval</h5>
+          <p class="small text-muted mb-4">{{ successMessage }}</p>
+          <button class="btn btn-primary rounded-3 px-4 py-2 fw-bold" (click)="goToLogin()">
+            Return to Login Screen <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      } @else {
 
-      @if (error) {
-        <div class="alert alert-danger border-0 d-flex align-items-center small mb-4 rounded-3">
-          <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
+        <!-- Role Selection Tabs -->
+        <div class="nav nav-pills nav-fill bg-light p-1.5 rounded-3 border shadow-xs mb-4">
+          <button class="nav-link rounded-2 py-2 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                  [class.active]="role === 'student'"
+                  [class.btn-success]="role === 'student'"
+                  (click)="selectRole('student')">
+            <i class="bi bi-backpack-fill me-1"></i> Student
+          </button>
+          <button class="nav-link rounded-2 py-2 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                  [class.active]="role === 'teacher'"
+                  [class.btn-info]="role === 'teacher'"
+                  [class.text-white]="role === 'teacher'"
+                  (click)="selectRole('teacher')">
+            <i class="bi bi-person-workspace me-1"></i> Teacher
+          </button>
+          <button class="nav-link rounded-2 py-2 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                  [class.active]="role === 'admin'"
+                  [class.btn-primary]="role === 'admin'"
+                  (click)="selectRole('admin')">
+            <i class="bi bi-shield-lock-fill me-1"></i> Admin
+          </button>
+        </div>
+
+        @if (error) {
+          <div class="alert alert-danger border-0 d-flex align-items-center small mb-4 rounded-3">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
+          </div>
+        }
+
+        <!-- Account Approval Notice -->
+        <div class="alert alert-info border-0 p-2.5 rounded-3 extra-small mb-4 d-flex align-items-center gap-2">
+          <i class="bi bi-info-circle-fill fs-5 text-info flex-shrink-0"></i>
+          <div>
+            <strong>Notice:</strong> All new account registrations require activation permission from an Administrator before portal access is granted.
+          </div>
+        </div>
+
+        <form (ngSubmit)="submit()">
+          <!-- Name & Email -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted extra-small fw-bold text-uppercase mb-1">Full Name *</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control bg-light" [(ngModel)]="fullName" name="fullName" 
+                       [placeholder]="role === 'admin' ? 'e.g. System Admin' : (role === 'teacher' ? 'e.g. Dr. Robert D\'Souza' : 'e.g. Aarav Patel')" required />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted extra-small fw-bold text-uppercase mb-1">Email Address *</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control bg-light" [(ngModel)]="email" name="email" 
+                       [placeholder]="role === 'admin' ? 'admin@school.com' : (role === 'teacher' ? 'teacher@school.com' : 'student@school.com')" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Passwords -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label text-muted extra-small fw-bold text-uppercase mb-1">Password *</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                <input [type]="showPassword ? 'text' : 'password'" class="form-control bg-light" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted extra-small fw-bold text-uppercase mb-1">Confirm Password *</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-shield-lock"></i></span>
+                <input [type]="showPassword ? 'text' : 'password'" class="form-control bg-light border-end-0" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" required />
+                <button class="btn btn-outline-secondary bg-light text-muted" type="button" (click)="togglePasswordVisibility()">
+                  <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Fields -->
+          @if (role === 'student') {
+            <div class="p-3 bg-light rounded-3 border mb-4">
+              <h6 class="fw-bold text-success mb-3 small"><i class="bi bi-person-lines-fill me-1"></i>Student Academic Info</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Class</label>
+                  <select class="form-select bg-white" [(ngModel)]="classId" name="classId">
+                    <option value="Class 10-A">Class 10-A</option>
+                    <option value="Class 10-B">Class 10-B</option>
+                    <option value="Class 9-B">Class 9-B</option>
+                    <option value="Class 11-A">Class 11-A</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Roll Number</label>
+                  <input type="text" class="form-control bg-white" [(ngModel)]="rollNumber" name="rollNumber" placeholder="105" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Father / Guardian Name</label>
+                  <input type="text" class="form-control bg-white" [(ngModel)]="fatherName" name="fatherName" placeholder="Rajesh Patel" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Parent Contact Phone</label>
+                  <input type="text" class="form-control bg-white" [(ngModel)]="parentPhone" name="parentPhone" placeholder="+91 9876543210" />
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Teacher Fields -->
+          @if (role === 'teacher') {
+            <div class="p-3 bg-light rounded-3 border mb-4">
+              <h6 class="fw-bold text-info mb-3 small"><i class="bi bi-briefcase-fill me-1"></i>Faculty Info</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Qualification</label>
+                  <input type="text" class="form-control bg-white" [(ngModel)]="qualification" name="qualification" placeholder="Ph.D / M.Sc in Mathematics" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Assigned Class</label>
+                  <select class="form-select bg-white" [(ngModel)]="assignedClassId" name="assignedClassId">
+                    <option value="Class 10-A">Class 10-A</option>
+                    <option value="Class 10-B">Class 10-B</option>
+                    <option value="Class 9-B">Class 9-B</option>
+                    <option value="Class 11-A">Class 11-A</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label text-muted extra-small fw-semibold mb-1">Subjects (Comma separated)</label>
+                  <input type="text" class="form-control bg-white" [(ngModel)]="subjectsInput" name="subjectsInput" placeholder="Mathematics, Physics" />
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm text-uppercase"
+                  [disabled]="loading">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span> Submitting Registration...
+            } @else {
+              Register {{ role | uppercase }} Account <i class="bi bi-check-circle ms-1"></i>
+            }
+          </button>
+        </form>
+
+        <!-- Back to Login Link -->
+        <div class="text-center border-top mt-4 pt-3">
+          <span class="text-muted small me-1">Already registered?</span>
+          <a routerLink="/login" class="fw-bold text-primary text-decoration-none">
+            Sign In to Portal <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       }
-
-      <form (ngSubmit)="submit()">
-        <!-- Common Fields: Name & Email -->
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">Full Name *</label>
-            <div class="input-group">
-              <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
-              <input type="text" class="form-control" [(ngModel)]="fullName" name="fullName" 
-                     [placeholder]="role === 'student' ? 'e.g. Aarav Patel' : 'e.g. Dr. Robert D\'Souza'" required />
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">Email Address *</label>
-            <div class="input-group">
-              <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
-              <input type="email" class="form-control" [(ngModel)]="email" name="email" 
-                     [placeholder]="role === 'student' ? 'student@school.com' : 'teacher@school.com'" required />
-            </div>
-          </div>
-        </div>
-
-        <!-- Passwords -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">Password *</label>
-            <div class="input-group">
-              <span class="input-group-text bg-white text-muted"><i class="bi bi-lock"></i></span>
-              <input [type]="showPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="password" name="password" placeholder="••••••••" required />
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">Confirm Password *</label>
-            <div class="input-group">
-              <span class="input-group-text bg-white text-muted"><i class="bi bi-shield-lock"></i></span>
-              <input [type]="showPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" required />
-              <button class="btn btn-outline-secondary bg-white text-muted" type="button" (click)="togglePasswordVisibility()">
-                <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Role Specific Fields: Student -->
-        @if (role === 'student') {
-          <div class="p-3 bg-white rounded-3 border mb-4">
-            <h6 class="fw-bold text-success mb-3 small"><i class="bi bi-person-lines-fill me-1"></i>Student Academic Details</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Class</label>
-                <select class="form-select" [(ngModel)]="classId" name="classId">
-                  <option value="Class 10-A">Class 10-A</option>
-                  <option value="Class 10-B">Class 10-B</option>
-                  <option value="Class 9-B">Class 9-B</option>
-                  <option value="Class 11-A">Class 11-A</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Roll Number</label>
-                <input type="text" class="form-control" [(ngModel)]="rollNumber" name="rollNumber" placeholder="105" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Father / Guardian Name</label>
-                <input type="text" class="form-control" [(ngModel)]="fatherName" name="fatherName" placeholder="Rajesh Patel" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Parent Phone</label>
-                <input type="text" class="form-control" [(ngModel)]="parentPhone" name="parentPhone" placeholder="+91 9876543210" />
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Role Specific Fields: Teacher -->
-        @if (role === 'teacher') {
-          <div class="p-3 bg-white rounded-3 border mb-4">
-            <h6 class="fw-bold text-info mb-3 small"><i class="bi bi-briefcase-fill me-1"></i>Faculty Details</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Qualification</label>
-                <input type="text" class="form-control" [(ngModel)]="qualification" name="qualification" placeholder="Ph.D / M.Sc in Mathematics" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Assigned Class Teacher</label>
-                <select class="form-select" [(ngModel)]="assignedClassId" name="assignedClassId">
-                  <option value="Class 10-A">Class 10-A</option>
-                  <option value="Class 10-B">Class 10-B</option>
-                  <option value="Class 9-B">Class 9-B</option>
-                  <option value="Class 11-A">Class 11-A</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <label class="form-label text-muted extra-small fw-semibold mb-1">Subjects (Comma separated)</label>
-                <input type="text" class="form-control" [(ngModel)]="subjectsInput" name="subjectsInput" placeholder="Mathematics, Physics" />
-              </div>
-            </div>
-          </div>
-        }
-
-        <button type="submit" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-sm"
-                [class.btn-success]="role === 'student'"
-                [class.btn-info]="role === 'teacher'"
-                [disabled]="loading">
-          @if (loading) {
-            <span class="spinner-border spinner-border-sm me-2"></span> Creating Account...
-          } @else {
-            Register {{ role | uppercase }} Account <i class="bi bi-check-circle ms-1"></i>
-          }
-        </button>
-      </form>
-
-      <!-- Back to Login Link -->
-      <div class="text-center border-top mt-4 pt-3">
-        <span class="text-muted small me-1">Already have an account?</span>
-        <a routerLink="/login" class="fw-bold text-decoration-none" [class.text-success]="role === 'student'" [class.text-info]="role === 'teacher'">
-          Sign In to Portal <i class="bi bi-arrow-right"></i>
-        </a>
-      </div>
     </div>
   </div>
 </div>

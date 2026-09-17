@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { DataService } from '../../core/services/data.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -15,7 +15,7 @@ import { Role } from '../../core/models/models';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   role: Role = 'student';
   fullName = '';
   email = '';
@@ -24,6 +24,8 @@ export class RegisterComponent {
   showPassword = false;
   loading = false;
   error = '';
+  registeredSuccess = false;
+  successMessage = '';
 
   // Student specific fields
   gender: 'Male' | 'Female' | 'Other' = 'Male';
@@ -45,9 +47,18 @@ export class RegisterComponent {
     public auth: AuthService,
     private data: DataService,
     private router: Router,
+    private route: ActivatedRoute,
     private toast: ToastService,
     private spinner: SpinnerService
   ) {}
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['role'] === 'admin' || params['role'] === 'teacher' || params['role'] === 'student') {
+        this.role = params['role'] as Role;
+      }
+    });
+  }
 
   selectRole(targetRole: Role) {
     this.role = targetRole;
@@ -60,6 +71,8 @@ export class RegisterComponent {
 
   async submit() {
     this.error = '';
+    this.registeredSuccess = false;
+
     if (!this.fullName || !this.email || !this.password) {
       this.error = 'Please fill in all required fields.';
       return;
@@ -120,13 +133,19 @@ export class RegisterComponent {
         createdDetailId = newTeacher.id!;
       }
 
-      await this.auth.register(this.fullName, this.email, this.password, this.role, {
+      const resProfile = await this.auth.register(this.fullName, this.email, this.password, this.role, {
         studentId: createdDetailId,
         teacherId: createdDetailId
       });
 
-      this.toast.success(`Welcome ${this.fullName}!`, `${this.role.toUpperCase()} Account Registered & Saved to Database.`);
-      this.router.navigate(['/dashboard']);
+      this.registeredSuccess = true;
+      if (resProfile.active) {
+        this.toast.success(`Welcome ${this.fullName}!`, `${this.role.toUpperCase()} Account Activated.`);
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.successMessage = `Registration successful! Your ${this.role.toUpperCase()} account is pending Administrator approval before you can log in.`;
+        this.toast.warning('Account Pending Approval', 'Admin permission required to activate account.');
+      }
     } catch (e: any) {
       this.error = e?.message || 'Registration failed. Please try again.';
       this.toast.error(this.error, 'Registration Failed');
@@ -134,5 +153,9 @@ export class RegisterComponent {
       this.loading = false;
       this.spinner.hide();
     }
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

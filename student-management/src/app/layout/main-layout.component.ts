@@ -4,7 +4,6 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { AuthService } from '../core/services/auth.service';
 import { DataService } from '../core/services/data.service';
 import { Role } from '../core/models/models';
-
 import { ToastService } from '../core/services/toast.service';
 
 @Component({
@@ -16,6 +15,7 @@ import { ToastService } from '../core/services/toast.service';
 })
 export class MainLayoutComponent {
   sidebarCollapsed = signal(false);
+  mobileSidebarOpen = signal(false);
 
   constructor(
     public auth: AuthService,
@@ -25,14 +25,24 @@ export class MainLayoutComponent {
   ) {}
 
   toggleSidebar() {
-    this.sidebarCollapsed.update(val => !val);
+    if (window.innerWidth < 768) {
+      this.mobileSidebarOpen.update(v => !v);
+    } else {
+      this.sidebarCollapsed.update(val => !val);
+    }
+  }
+
+  closeMobileSidebar() {
+    this.mobileSidebarOpen.set(false);
   }
 
   changeDemoRole(role: Role) {
     this.auth.switchDemoRole(role);
+    this.closeMobileSidebar();
   }
 
   logout() {
+    this.closeMobileSidebar();
     this.auth.logout();
     this.toast.info('You have been signed out.', 'Logged Out');
     this.router.navigate(['/login']);

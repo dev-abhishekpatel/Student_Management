@@ -2,7 +2,8 @@
   width: 250px;
   min-width: 250px;
   background-color: #1e1e2d !important;
-  transition: all 0.25s ease-in-out;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s ease-in-out;
+  z-index: 1040;
 
   &.collapsed {
     width: 68px;
@@ -17,6 +18,41 @@
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
+  }
+}
+
+/* Mobile Offcanvas Drawer Behavior */
+@media (max-width: 767.98px) {
+  .app-sidebar {
+    position: fixed;
+    top: 57px;
+    bottom: 0;
+    left: 0;
+    height: calc(100vh - 57px);
+    width: 260px !important;
+    min-width: 260px !important;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+
+    &.mobile-open {
+      transform: translateX(0);
+    }
+
+    .nav-text, .sidebar-footer {
+      display: inline-block !important;
+    }
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 57px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 1030;
+    animation: fadeIn 0.2s ease-in-out;
   }
 }
 

@@ -15,8 +15,8 @@ import { Role } from '../../core/models/models';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  activeTab: Role = 'student';
-  email = 'aarav.patel@school.com';
+  activeTab: Role = 'admin';
+  email = 'admin@school.com';
   password = 'password123';
   showPassword = false;
   loading = false;
@@ -46,13 +46,20 @@ export class LoginComponent {
   }
 
   async submit() {
+    if (!this.email || !this.password) {
+      this.error = 'Please enter both email address and password.';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
-    this.spinner.show(`Logging in as ${this.activeTab.toUpperCase()}...`);
+    this.spinner.show(`Logging in...`);
     try {
       await this.auth.login(this.email, this.password, this.activeTab);
-      const name = this.auth.currentUser()?.name || 'User';
-      this.toast.success(`Welcome back, ${name}!`, `Authenticated as ${this.activeTab.toUpperCase()}`);
+      const user = this.auth.currentUser();
+      const name = user?.name || 'User';
+      const role = user?.role || this.activeTab;
+      this.toast.success(`Welcome back, ${name}!`, `Authenticated as ${role.toUpperCase()}`);
       this.router.navigate(['/dashboard']);
     } catch (e: any) {
       this.error = e?.message || 'Login failed. Please check credentials.';
@@ -65,12 +72,12 @@ export class LoginComponent {
 
   quickLogin(role: Role) {
     this.selectTab(role);
-    this.spinner.show(`Entering ${role.toUpperCase()} Workspace...`);
+    this.spinner.show(`Entering ${role.toUpperCase()} Portal...`);
     setTimeout(() => {
       this.auth.switchDemoRole(role);
-      this.toast.info(`Logged into ${role.toUpperCase()} Portal`, 'Demo Access Granted');
+      this.toast.info(`Logged into ${role.toUpperCase()} Portal`, 'Access Granted');
       this.spinner.hide();
       this.router.navigate(['/dashboard']);
-    }, 400);
+    }, 300);
   }
 }
