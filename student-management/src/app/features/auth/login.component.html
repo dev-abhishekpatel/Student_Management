@@ -1,60 +1,141 @@
-<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 bg-gradient-brand p-3">
-  <div class="login-card card border-0 shadow-lg p-4 p-md-5 rounded-4 glass-panel text-white" style="max-width: 480px; width: 100%;">
-    <div class="text-center mb-4">
-      <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-3 p-3" style="width: 64px; height: 64px;">
-        <i class="bi bi-mortarboard-fill fs-2"></i>
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 p-3">
+  <div class="login-card card border-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 520px; width: 100%;">
+
+    <!-- Header Banner with Academy Info -->
+    <div class="card-header border-0 text-white text-center p-4" 
+         [class.bg-student]="activeTab === 'student'"
+         [class.bg-teacher]="activeTab === 'teacher'"
+         [class.bg-admin]="activeTab === 'admin'">
+      <div class="brand-badge d-inline-flex align-items-center justify-content-center bg-white bg-opacity-20 text-white rounded-circle mb-2 p-3" style="width: 60px; height: 60px;">
+        @if (activeTab === 'student') {
+          <i class="bi bi-backpack-fill fs-2 text-warning"></i>
+        } @else if (activeTab === 'teacher') {
+          <i class="bi bi-person-badge-fill fs-2 text-info"></i>
+        } @else {
+          <i class="bi bi-shield-lock-fill fs-2 text-light"></i>
+        }
       </div>
-      <h2 class="fw-bold mb-1">St. Xavier Academy</h2>
-      <p class="text-white-50 small mb-0">Student Management System Portal</p>
+      <h3 class="fw-bold mb-1">St. Xavier Academy</h3>
+      <p class="text-white-50 small mb-0 font-monospace text-uppercase">
+        {{ activeTab }} Portal Authentication
+      </p>
     </div>
 
-    @if (error) {
-      <div class="alert alert-danger border-0 bg-danger bg-opacity-25 text-white d-flex align-items-center small mb-4 rounded-3">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
+    <!-- Role Selection Tabs -->
+    <div class="card-body p-4 bg-body-tertiary">
+      <div class="nav nav-pills nav-fill bg-white p-1.5 rounded-3 border shadow-sm mb-4">
+        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                [class.active]="activeTab === 'student'"
+                [class.btn-student-active]="activeTab === 'student'"
+                (click)="selectTab('student')">
+          <i class="bi bi-person-fill text-success"></i> Student
+        </button>
+        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                [class.active]="activeTab === 'teacher'"
+                [class.btn-teacher-active]="activeTab === 'teacher'"
+                (click)="selectTab('teacher')">
+          <i class="bi bi-person-workspace text-info"></i> Teacher
+        </button>
+        <button class="nav-link rounded-2 py-2.5 fw-semibold small d-flex align-items-center justify-content-center gap-1.5"
+                [class.active]="activeTab === 'admin'"
+                [class.btn-admin-active]="activeTab === 'admin'"
+                (click)="selectTab('admin')">
+          <i class="bi bi-shield-check text-primary"></i> Admin
+        </button>
       </div>
-    }
 
-    <form (ngSubmit)="submit()" class="mb-4">
-      <div class="mb-3">
-        <label class="form-label text-white-50 small fw-medium">Email Address</label>
-        <div class="input-group">
-          <span class="input-group-text bg-white bg-opacity-10 border-0 text-white"><i class="bi bi-envelope"></i></span>
-          <input type="email" class="form-control bg-white bg-opacity-10 border-0 text-white placeholder-white" [(ngModel)]="email" name="email" placeholder="name@school.com" required />
+      <!-- Role Information Box -->
+      <div class="p-3 rounded-3 mb-4 extra-small border d-flex align-items-center gap-3"
+           [class.bg-success-subtle]="activeTab === 'student'"
+           [class.border-success-subtle]="activeTab === 'student'"
+           [class.bg-info-subtle]="activeTab === 'teacher'"
+           [class.border-info-subtle]="activeTab === 'teacher'"
+           [class.bg-primary-subtle]="activeTab === 'admin'"
+           [class.border-primary-subtle]="activeTab === 'admin'">
+        <i class="bi fs-4"
+           [class.bi-info-circle-fill]="true"
+           [class.text-success]="activeTab === 'student'"
+           [class.text-info]="activeTab === 'teacher'"
+           [class.text-primary]="activeTab === 'admin'"></i>
+        <div>
+          @if (activeTab === 'student') {
+            <strong>Student Login Mode:</strong> View your personal timetable, attendance percentage, report cards, exam marks, and online fee payments.
+          } @else if (activeTab === 'teacher') {
+            <strong>Teacher Login Mode:</strong> Manage assigned classes, mark student attendance, upload exam marks, and view teaching schedules.
+          } @else {
+            <strong>Administrator Mode:</strong> Full management center for students, teachers, classes, financial metrics, notices, and settings.
+          }
         </div>
       </div>
 
-      <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <label class="form-label text-white-50 small fw-medium mb-0">Password</label>
-          <a href="javascript:void(0)" class="text-white-50 small text-decoration-none">Forgot?</a>
+      @if (error) {
+        <div class="alert alert-danger border-0 d-flex align-items-center small mb-4 rounded-3">
+          <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
         </div>
-        <div class="input-group">
-          <span class="input-group-text bg-white bg-opacity-10 border-0 text-white"><i class="bi bi-lock"></i></span>
-          <input type="password" class="form-control bg-white bg-opacity-10 border-0 text-white placeholder-white" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+      }
+
+      <form (ngSubmit)="submit()" class="mb-4">
+        <!-- User Identifier / Email -->
+        <div class="mb-3">
+          <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-1">
+            @if (activeTab === 'student') { Student ID / Email } 
+            @else if (activeTab === 'teacher') { Teacher ID / Email } 
+            @else { Admin Email }
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+            <input type="email" class="form-control border-start-0 ps-0 shadow-none" 
+                   [(ngModel)]="email" name="email" 
+                   [placeholder]="activeTab === 'student' ? 'aarav.patel@school.com' : (activeTab === 'teacher' ? 'robert@school.com' : 'admin@school.com')" 
+                   required />
+          </div>
         </div>
-      </div>
 
-      <button type="submit" class="btn btn-light w-100 py-2.5 fw-bold text-primary rounded-3 shadow-sm" [disabled]="loading">
-        @if (loading) {
-          <span class="spinner-border spinner-border-sm me-2"></span> Signing in...
-        } @else {
-          Sign In to Portal <i class="bi bi-arrow-right ms-1"></i>
-        }
-      </button>
-    </form>
+        <!-- Password -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label text-muted extra-small fw-semibold text-uppercase mb-0">Password</label>
+            <span class="text-muted extra-small">Default: <code class="text-primary">password123</code></span>
+          </div>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+            <input [type]="showPassword ? 'text' : 'password'" 
+                   class="form-control border-start-0 border-end-0 ps-0 shadow-none" 
+                   [(ngModel)]="password" name="password" 
+                   placeholder="••••••••" required />
+            <button class="btn btn-outline-secondary border-start-0 bg-white text-muted" type="button" (click)="togglePasswordVisibility()">
+              <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
+            </button>
+          </div>
+        </div>
 
-    <div class="border-top border-white border-opacity-10 pt-4">
-      <div class="text-center text-white-50 small mb-3 fw-medium">⚡ Quick Demo Access by Role:</div>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('admin')">
-          <i class="bi bi-shield-lock-fill text-warning me-1"></i> Admin
+        <button type="submit" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-sm"
+                [class.btn-success]="activeTab === 'student'"
+                [class.btn-info]="activeTab === 'teacher'"
+                [class.btn-primary]="activeTab === 'admin'"
+                [disabled]="loading">
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-2"></span> Logging in...
+          } @else {
+            Sign In as {{ activeTab | uppercase }} <i class="bi bi-arrow-right ms-1"></i>
+          }
         </button>
-        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('teacher')">
-          <i class="bi bi-person-badge-fill text-info me-1"></i> Teacher
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-light bg-white bg-opacity-10 rounded-pill px-3" (click)="quickLogin('student')">
-          <i class="bi bi-backpack-fill text-success me-1"></i> Student
-        </button>
+      </form>
+
+      <!-- Quick Demo Access Section -->
+      <div class="border-top pt-3">
+        <div class="text-center text-muted extra-small mb-2 fw-semibold text-uppercase">Instant 1-Click Demo Login:</div>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <button type="button" class="btn btn-xs btn-outline-success rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('student')">
+            <i class="bi bi-backpack-fill me-1"></i> Student Demo
+          </button>
+          <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('teacher')">
+            <i class="bi bi-person-badge-fill me-1"></i> Teacher Demo
+          </button>
+          <button type="button" class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1.5 fw-medium" (click)="quickLogin('admin')">
+            <i class="bi bi-shield-lock-fill me-1"></i> Admin Demo
+          </button>
+        </div>
       </div>
     </div>
   </div>

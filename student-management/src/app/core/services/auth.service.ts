@@ -59,6 +59,7 @@ export class AuthService {
         name: 'Dr. Robert D\'Souza',
         email: 'robert@school.com',
         role: 'teacher',
+        teacherId: 'tch-1',
         active: true,
         avatarUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150'
       });
@@ -68,30 +69,34 @@ export class AuthService {
         name: 'Aarav Patel',
         email: 'aarav.patel@school.com',
         role: 'student',
+        studentId: 'st-101',
         active: true,
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
       });
     }
   }
 
-  async login(email: string, pass: string) {
+  async login(email: string, pass: string, targetRole?: Role) {
+    const lowerEmail = email.toLowerCase();
     try {
       const res = await signInWithEmailAndPassword(this.auth, email, pass);
-      const role = await this.fetchUserRole(res.user.uid);
+      const role = targetRole || await this.fetchUserRole(res.user.uid) || 'admin';
       this.currentUser.set({
         uid: res.user.uid,
         name: res.user.displayName || email.split('@')[0],
         email: res.user.email || email,
-        role: role || 'admin',
+        role: role,
+        studentId: role === 'student' ? 'st-101' : undefined,
+        teacherId: role === 'teacher' ? 'tch-1' : undefined,
         active: true
       });
       return res;
     } catch(err) {
       // Fallback for demo login if offline/emulator not connected
-      if (email.includes('teacher')) {
-        this.switchDemoRole('teacher');
-      } else if (email.includes('student')) {
+      if (targetRole === 'student' || lowerEmail.includes('student') || lowerEmail.includes('aarav')) {
         this.switchDemoRole('student');
+      } else if (targetRole === 'teacher' || lowerEmail.includes('teacher') || lowerEmail.includes('robert')) {
+        this.switchDemoRole('teacher');
       } else {
         this.switchDemoRole('admin');
       }

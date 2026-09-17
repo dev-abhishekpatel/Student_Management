@@ -1,12 +1,13 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "demo-api-key",
-    authDomain: "demo-student-management.firebaseapp.com",
-    projectId: "demo-student-management",
-    storageBucket: "demo-student-management.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "demo-app-id"
+    apiKey: "AIzaSyBGINc3oeH666dmMxuHiT2azKOKEFaOZMA",
+    authDomain: "student-ecbba.firebaseapp.com",
+    projectId: "student-ecbba",
+    storageBucket: "student-ecbba.firebasestorage.app",
+    messagingSenderId: "129904027126",
+    appId: "1:129904027126:web:0cf0c8523dfca4f828d3d7",
+    measurementId: "G-2S6C053LNC"
   },
   useEmulator: false
 };

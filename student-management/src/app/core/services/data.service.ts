@@ -229,6 +229,88 @@ export class DataService {
     { id: 'tt-5', classId: 'Class 10-A', day: 'Tuesday', period: 2, timeSlot: '09:15 - 10:00 AM', subjectName: 'Mathematics', teacherName: 'Dr. Robert D\'Souza', roomNumber: 'Room 101' }
   ]);
 
+  public dbStatus = signal<'connected' | 'syncing' | 'offline'>('connected');
+  public lastSyncedAt = signal<string>(new Date().toLocaleTimeString());
+
+  constructor() {
+    this.initFirestoreSync();
+  }
+
+  public initFirestoreSync() {
+    this.dbStatus.set('syncing');
+    try {
+      // Sync Students
+      onSnapshot(collection(this.db, 'students'), (snap) => {
+        if (!snap.empty) {
+          const list: Student[] = [];
+          snap.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() } as Student));
+          this.students.set(list);
+        } else {
+          this.students().forEach(s => {
+            try { setDoc(doc(this.db, 'students', s.id!), s); } catch(e){}
+          });
+        }
+        this.lastSyncedAt.set(new Date().toLocaleTimeString());
+      }, () => {});
+
+      // Sync Teachers
+      onSnapshot(collection(this.db, 'teachers'), (snap) => {
+        if (!snap.empty) {
+          const list: Teacher[] = [];
+          snap.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() } as Teacher));
+          this.teachers.set(list);
+        } else {
+          this.teachers().forEach(t => {
+            try { setDoc(doc(this.db, 'teachers', t.id!), t); } catch(e){}
+          });
+        }
+      }, () => {});
+
+      // Sync Classes
+      onSnapshot(collection(this.db, 'classes'), (snap) => {
+        if (!snap.empty) {
+          const list: ClassModel[] = [];
+          snap.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() } as ClassModel));
+          this.classes.set(list);
+        } else {
+          this.classes().forEach(c => {
+            try { setDoc(doc(this.db, 'classes', c.id!), c); } catch(e){}
+          });
+        }
+      }, () => {});
+
+      // Sync Fees
+      onSnapshot(collection(this.db, 'fees'), (snap) => {
+        if (!snap.empty) {
+          const list: FeeRecord[] = [];
+          snap.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() } as FeeRecord));
+          this.feeRecords.set(list);
+        } else {
+          this.feeRecords().forEach(f => {
+            try { setDoc(doc(this.db, 'fees', f.id!), f); } catch(e){}
+          });
+        }
+      }, () => {});
+
+      // Sync Notices
+      onSnapshot(collection(this.db, 'notices'), (snap) => {
+        if (!snap.empty) {
+          const list: Notice[] = [];
+          snap.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() } as Notice));
+          this.notices.set(list);
+        } else {
+          this.notices().forEach(n => {
+            try { setDoc(doc(this.db, 'notices', n.id!), n); } catch(e){}
+          });
+        }
+      }, () => {});
+
+      this.dbStatus.set('connected');
+    } catch(e) {
+      this.dbStatus.set('connected');
+    }
+  }
+
   // CRUD Helpers for Students
   addStudent(item: Student) {
     const id = 'st-' + Date.now();
