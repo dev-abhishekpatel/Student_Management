@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, getDocs, onSnapshot, query, where, getDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { initializeApp } from 'firebase/app';
+import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs, onSnapshot, query, where, getDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { environment } from '../../../environments/environment';
+import { firebaseDb, firebaseStorage } from '../firebase/firebase.config';
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
-  private app = initializeApp(environment.firebase);
-  private db = getFirestore(this.app);
-  private storage = getStorage(this.app);
+  private db = firebaseDb;
+  private storage = firebaseStorage;
 
   constructor() {
     if (environment.useEmulator) {

@@ -1,7 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { initializeApp } from 'firebase/app';
 import { 
-  getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, getDocs, 
+  collection, addDoc, doc, updateDoc, deleteDoc, getDocs, 
   query, where, onSnapshot, getDoc, setDoc, orderBy 
 } from 'firebase/firestore';
 import { environment } from '../../../environments/environment';
@@ -9,11 +8,11 @@ import {
   Student, Teacher, ClassModel, Subject, AttendanceRecord, 
   TimetableEntry, Exam, MarkRecord, FeeRecord, Notice, SchoolSettings 
 } from '../models/models';
+import { firebaseDb } from '../firebase/firebase.config';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private app = initializeApp(environment.firebase);
-  private db = getFirestore(this.app);
+  private db = firebaseDb;
 
   // In-memory fallback stores populated with rich sample data for immediate demo operation
   public students = signal<Student[]>([

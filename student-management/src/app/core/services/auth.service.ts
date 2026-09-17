@@ -1,15 +1,14 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, onAuthStateChanged, connectAuthEmulator, User } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, connectAuthEmulator } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { environment } from '../../../environments/environment';
 import { Role, UserProfile } from '../models/models';
+import { firebaseAuth, firebaseDb } from '../firebase/firebase.config';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private app = initializeApp(environment.firebase);
-  private auth = getAuth(this.app);
-  private db = getFirestore(this.app);
+  private auth = firebaseAuth;
+  private db = firebaseDb;
 
   // Active user profile signal
   public currentUser = signal<UserProfile | null>({

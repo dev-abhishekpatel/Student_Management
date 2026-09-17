@@ -1,12 +1,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "",
-    authDomain: "",
+    apiKey: "demo-api-key",
+    authDomain: "demo-student-management.firebaseapp.com",
     projectId: "demo-student-management",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    storageBucket: "demo-student-management.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "demo-app-id"
   },
-  useEmulator: true
+  useEmulator: false
 };
